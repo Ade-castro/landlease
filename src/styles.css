@@ -63,7 +63,7 @@ h2 { font-size: 36px; font-weight: 500; letter-spacing: -.06em; line-height: 1.0
 .listing-grid { display: grid; gap: 20px; grid-template-columns: repeat(4, 1fr); margin-top: 28px; }
 .listing-card { background: #fff; border: 1px solid #e2e4da; border-radius: 5px; min-width: 0; overflow: hidden; transition: box-shadow .2s, transform .2s; }
 .listing-card:hover { box-shadow: 0 15px 30px rgba(35,57,43,.11); transform: translateY(-3px); }
-.listing-image-wrap { height: 174px; overflow: hidden; position: relative; }
+.listing-image-wrap { display: block; height: 174px; overflow: hidden; position: relative; }
 .listing-image-wrap img { height: 100%; object-fit: cover; transition: transform .35s; width: 100%; }
 .listing-card:hover img { transform: scale(1.04); }
 .image-overlay { align-items: start; display: flex; justify-content: space-between; left: 12px; position: absolute; right: 12px; top: 12px; }
@@ -122,8 +122,9 @@ footer .brand-mark { height: 24px; width: 24px; }
 .wizard-step { margin: 0 auto; max-width: 480px; }
 .wizard-step h2 { font-size: 28px; margin-bottom: 26px; }
 .field-label { color: var(--ink); display: block; font-size: 12px; font-weight: 600; margin-bottom: 18px; }
-.field-label input { background: #fff; border: 1px solid var(--line); border-radius: 4px; display: block; font-size: 14px; font-weight: 400; margin-top: 7px; padding: 12px 14px; width: 100%; }
-.field-label input:focus { border-color: var(--green); outline: none; }
+.field-label input, .field-label textarea { background: #fff; border: 1px solid var(--line); border-radius: 4px; display: block; font-size: 14px; font-weight: 400; margin-top: 7px; padding: 12px 14px; width: 100%; }
+.field-label textarea { font-family: inherit; resize: vertical; }
+.field-label input:focus, .field-label textarea:focus { border-color: var(--green); outline: none; }
 .tag-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 7px; }
 .tag-option { align-items: center; background: #fff; border: 1px solid var(--line); border-radius: 20px; color: var(--ink); display: inline-flex; font-size: 11px; gap: 5px; padding: 8px 13px; }
 .tag-option.active { background: var(--green); border-color: var(--green); color: #fff; }
@@ -170,5 +171,25 @@ footer .brand-mark { height: 24px; width: 24px; }
 @media (prefers-reduced-motion: reduce) {
   .reveal, .view-transition, .mobile-menu, .toast, .save-button.saved { animation: none !important; opacity: 1 !important; transform: none !important; transition: none !important; }
 }
+
+.detail-back { align-items: center; color: var(--green); display: inline-flex; font-size: 12px; font-weight: 600; gap: 6px; margin-bottom: 28px; }
+.detail-layout { display: grid; gap: 20px 44px; grid-template-columns: 1fr 320px; }
+.detail-media { border-radius: 6px; grid-column: 1; height: 420px; overflow: hidden; position: relative; }
+.detail-media img { height: 100%; object-fit: cover; width: 100%; }
+.detail-main { grid-column: 1; }
+.detail-heading { align-items: start; display: flex; justify-content: space-between; margin-top: 26px; }
+.detail-heading h1 { font-size: 32px; letter-spacing: -.05em; margin-bottom: 8px; }
+.detail-heading p { align-items: center; color: var(--muted); display: flex; font-size: 13px; gap: 5px; }
+.detail-main .listing-meta { margin-top: 14px; }
+.detail-main .tags { justify-content: start; margin-top: 14px; }
+.detail-main .tags span { font-size: 10px; padding: 6px 9px; }
+.detail-description { color: var(--muted); font-size: 14px; line-height: 1.75; margin-top: 24px; max-width: 560px; }
+.detail-card { align-self: start; background: #fff; border: 1px solid #e2e4da; border-radius: 6px; grid-column: 2; grid-row: 1 / span 2; padding: 24px; position: sticky; top: 100px; }
+.detail-card strong { display: block; font-size: 24px; }
+.detail-card small { color: var(--muted); display: block; font-size: 11px; margin-bottom: 20px; margin-top: 4px; }
+.detail-card .dark-button, .detail-card .outline-button { align-items: center; justify-content: center; margin-bottom: 10px; width: 100%; }
+.detail-trust { border-top: 1px solid var(--line); color: var(--green); display: flex; flex-direction: column; font-size: 11px; font-weight: 600; gap: 8px; margin-top: 16px; padding-top: 16px; }
+.detail-trust span { align-items: center; display: flex; gap: 6px; }
+@media (max-width: 850px) { .detail-layout { grid-template-columns: 1fr; } .detail-card { grid-column: 1; grid-row: auto; position: static; } }
 @media (max-width: 850px) { .desktop-nav { gap: 16px; margin-left: 0; } .hero { padding-left: 32px; } .listing-grid { grid-template-columns: repeat(2, 1fr); } .planning-copy { padding-left: 35px; } }
 @media (max-width: 620px) { .topbar { height: 64px; padding: 0 20px; } .desktop-nav, .profile-button, .notification { display: none; } .menu-button { display: block; } .hero { display: block; padding: 0; } .hero-copy { padding: 53px 24px 42px; } .hero-art { min-height: 280px; } h1 { font-size: 54px; } .hero-description { font-size: 14px; } .trust-row { gap: 10px; justify-content: space-between; } .trust-row span { font-size: 10px; } .search-panel { align-items: stretch; display: block; margin-top: -22px; padding: 18px; } .search-field { padding: 3px 0 14px; } .search-divider { height: 1px; margin-bottom: 14px; width: 100%; } .search-button { justify-content: center; width: 100%; } .content-section { padding: 65px 20px 74px; } .section-heading { align-items: start; gap: 20px; } h2 { font-size: 29px; } .outline-button { flex-shrink: 0; padding: 9px; } .outline-button .filter-count { display: none; } .category-row { gap: 17px; overflow-x: auto; } .category { white-space: nowrap; } .result-count { display: none; } .filter-tray { align-items: start; flex-direction: column; } .filter-tray button { position: absolute; right: 28px; } .listing-grid { grid-template-columns: 1fr; } .listing-image-wrap { height: 205px; } .planning-section { display: flex; flex-direction: column; } .planning-art { min-height: 225px; } .planning-circle { left: 42%; top: 26%; } .planning-copy { padding: 47px 24px 54px; } .planning-copy h2 { font-size: 40px; } footer { align-items: start; flex-direction: column; gap: 17px; padding: 25px 20px; } }
