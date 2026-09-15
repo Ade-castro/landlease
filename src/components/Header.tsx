@@ -1,4 +1,4 @@
-import { Bell, ChevronDown, Menu, Sprout, X } from 'lucide-react'
+import { Bell, Menu, Sprout, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
@@ -20,18 +20,20 @@ export function Header() {
   const guestLinks = <><Link className={location.pathname === '/discover' || location.pathname === '/' ? 'active' : ''} to="/discover">Discover land</Link><Link to="/discover#how-it-works">How it works</Link><Link to="/discover#resources">Farm resources</Link></>
   const hostLinks = <Link className="active" to="/host">Your listings</Link>
 
-  return <header className={scrolled ? 'topbar scrolled' : 'topbar'}>
-    <Link className="brand" to="/discover"><span className="brand-mark"><Sprout size={20} /></span><span>landlease</span></Link>
-    <nav className="desktop-nav">{isHost ? hostLinks : guestLinks}</nav>
-    <div className="topbar-actions">
-      <button className="link-reset host-toggle" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
-      <button className="icon-button notification" aria-label="Notifications"><Bell size={19} /><span /></button>
-      <button className="profile-button"><span className="avatar">TM</span><span className="profile-name">Tendai M.</span><ChevronDown size={15} /></button>
-      <button className="menu-button" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={22} /> : <Menu size={22} />}</button>
+  return <header className={scrolled ? 'landlease-navbar scrolled bg-white sticky-top border-bottom py-3 position-relative' : 'landlease-navbar bg-white sticky-top border-bottom py-3 position-relative'}>
+    <div className="container-xxl d-flex align-items-center justify-content-between position-relative">
+      <Link className="d-flex align-items-center gap-2 fw-bold fs-5 text-dark" to="/discover"><span className="brand-mark"><Sprout size={18} /></span><span>landlease</span></Link>
+      <nav className="nav-links d-none d-lg-flex gap-4 position-absolute top-50 start-50 translate-middle">{isHost ? hostLinks : guestLinks}</nav>
+      <div className="d-flex align-items-center gap-2">
+        <button className="btn host-toggle-btn rounded-pill fw-semibold d-none d-md-inline-block" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
+        <button className="icon-btn d-none d-sm-inline-flex" aria-label="Notifications"><Bell size={18} /><span className="notification-dot" /></button>
+        <button className="profile-pill" aria-label="Account menu"><Menu size={16} /><span className="avatar">TM</span></button>
+        <button className="icon-btn d-lg-none" aria-label="Open menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X size={20} /> : <Menu size={20} />}</button>
+      </div>
     </div>
     {menuOpen && <nav className="mobile-menu">
       {isHost ? hostLinks : guestLinks}
-      <button className="link-reset host-toggle" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
+      <button className="nav-style text-start fw-semibold text-primary border-0 bg-transparent" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
     </nav>}
   </header>
 }

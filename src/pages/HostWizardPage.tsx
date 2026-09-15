@@ -35,49 +35,52 @@ export function HostWizardPage() {
     navigate('/host')
   }
 
-  return <section className="content-section host-wizard">
-    <div className="wizard-topbar">
-      {step > 0 ? <button className="link-reset wizard-back" onClick={() => setStep(step - 1)}><ArrowLeft size={15} /> Back</button> : <span />}
-      <div className="wizard-progress"><div className="wizard-progress-fill" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} /></div>
-      <button className="link-reset wizard-exit" onClick={() => navigate('/host')}>Save &amp; exit</button>
+  return <section className="container-xxl py-4 py-lg-5" style={{ maxWidth: 720 }}>
+    <div className="d-flex align-items-center gap-3 mb-4">
+      {step > 0 ? <button className="btn btn-link text-dark fw-semibold px-0 d-flex align-items-center gap-1 text-decoration-none" onClick={() => setStep(step - 1)}><ArrowLeft size={15} /> Back</button> : <span />}
+      <div className="progress flex-grow-1" style={{ height: 4 }}><div className="progress-bar bg-dark" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} /></div>
+      <button className="btn btn-link text-secondary px-0 text-decoration-none" onClick={() => navigate('/host')}>Save &amp; exit</button>
     </div>
-    <p className="section-kicker">STEP {step + 1} OF {STEPS.length} · {STEPS[step].toUpperCase()}</p>
+    <p className="text-primary fw-bold small text-uppercase mb-4" style={{ letterSpacing: '.08em' }}>Step {step + 1} of {STEPS.length} · {STEPS[step]}</p>
 
     {step === 0 && <div className="wizard-step">
       <h2>Tell us about your land</h2>
-      <label className="field-label">Land name<input value={draft.name} onChange={(event) => update({ name: event.target.value })} placeholder="e.g. Mbare Greenbelt Plot" /></label>
-      <label className="field-label">Area / region<input value={draft.area} onChange={(event) => update({ area: event.target.value })} placeholder="e.g. Harare South, Harare" /></label>
-      <label className="field-label">Size<input value={draft.size} onChange={(event) => update({ size: event.target.value })} placeholder="e.g. 2.4 hectares" /></label>
+      <div className="mb-3"><label className="form-label fw-semibold">Land name</label><input className="form-control" value={draft.name} onChange={(event) => update({ name: event.target.value })} placeholder="e.g. Mbare Greenbelt Plot" /></div>
+      <div className="mb-3"><label className="form-label fw-semibold">Area / region</label><input className="form-control" value={draft.area} onChange={(event) => update({ area: event.target.value })} placeholder="e.g. Harare South, Harare" /></div>
+      <div className="mb-3"><label className="form-label fw-semibold">Size</label><input className="form-control" value={draft.size} onChange={(event) => update({ size: event.target.value })} placeholder="e.g. 2.4 hectares" /></div>
     </div>}
 
     {step === 1 && <div className="wizard-step">
       <h2>What can grow there?</h2>
-      <label className="field-label">Primary crop<input value={draft.crop} onChange={(event) => update({ crop: event.target.value })} placeholder="e.g. Leafy greens" /></label>
-      <p className="field-label">Features</p>
-      <div className="tag-picker">{TAG_OPTIONS.map((tag) => <button key={tag} type="button" className={draft.tags.includes(tag) ? 'tag-option active' : 'tag-option'} onClick={() => toggleTag(tag)}>{draft.tags.includes(tag) && <Check size={12} />} {tag}</button>)}</div>
-      <label className="field-label">Description (optional)<textarea value={draft.description} onChange={(event) => update({ description: event.target.value })} placeholder="What makes this land worth leasing?" rows={3} /></label>
+      <div className="mb-3"><label className="form-label fw-semibold">Primary crop</label><input className="form-control" value={draft.crop} onChange={(event) => update({ crop: event.target.value })} placeholder="e.g. Leafy greens" /></div>
+      <label className="form-label fw-semibold">Features</label>
+      <div className="tag-picker d-flex flex-wrap gap-2 mb-3">{TAG_OPTIONS.map((tag) => <button key={tag} type="button" className={draft.tags.includes(tag) ? 'btn btn-dark rounded-pill btn-sm d-flex align-items-center gap-1' : 'btn btn-outline-secondary rounded-pill btn-sm d-flex align-items-center gap-1'} onClick={() => toggleTag(tag)}>{draft.tags.includes(tag) && <Check size={12} />} {tag}</button>)}</div>
+      <div className="mb-3"><label className="form-label fw-semibold">Description (optional)</label><textarea className="form-control" value={draft.description} onChange={(event) => update({ description: event.target.value })} placeholder="What makes this land worth leasing?" rows={3} /></div>
     </div>}
 
     {step === 2 && <div className="wizard-step">
       <h2>Set your price</h2>
-      <label className="field-label">Price (USD)<input value={draft.price} onChange={(event) => update({ price: event.target.value.replace(/[^0-9.]/g, '') })} placeholder="e.g. 180" /></label>
-      <div className="unit-toggle"><button type="button" className={draft.unit === 'season' ? 'active' : ''} onClick={() => update({ unit: 'season' })}>Per season</button><button type="button" className={draft.unit === 'month' ? 'active' : ''} onClick={() => update({ unit: 'month' })}>Per month</button></div>
-      <label className="field-label">Lease term<input value={draft.detail} onChange={(event) => update({ detail: event.target.value })} placeholder="e.g. Jun - Nov 2026, or Flexible term" /></label>
+      <div className="mb-3"><label className="form-label fw-semibold">Price (USD)</label><input className="form-control" value={draft.price} onChange={(event) => update({ price: event.target.value.replace(/[^0-9.]/g, '') })} placeholder="e.g. 180" /></div>
+      <div className="btn-group w-100 mb-3" role="group">
+        <button type="button" className={draft.unit === 'season' ? 'btn btn-dark' : 'btn btn-outline-secondary'} onClick={() => update({ unit: 'season' })}>Per season</button>
+        <button type="button" className={draft.unit === 'month' ? 'btn btn-dark' : 'btn btn-outline-secondary'} onClick={() => update({ unit: 'month' })}>Per month</button>
+      </div>
+      <div className="mb-3"><label className="form-label fw-semibold">Lease term</label><input className="form-control" value={draft.detail} onChange={(event) => update({ detail: event.target.value })} placeholder="e.g. Jun - Nov 2026, or Flexible term" /></div>
     </div>}
 
     {step === 3 && <div className="wizard-step">
       <h2>Add a photo</h2>
-      <label className="field-label">Image URL<input value={draft.image} onChange={(event) => update({ image: event.target.value })} placeholder="Paste a photo link, or leave blank for a placeholder" /></label>
+      <div className="mb-3"><label className="form-label fw-semibold">Image URL</label><input className="form-control" value={draft.image} onChange={(event) => update({ image: event.target.value })} placeholder="Paste a photo link, or leave blank for a placeholder" /></div>
       <div className="photo-preview">{draft.image ? <img src={draft.image} alt="Preview" /> : <div className="photo-placeholder"><ImagePlus size={22} /><span>No photo yet</span></div>}</div>
     </div>}
 
     {step === 4 && <div className="wizard-step">
       <h2>Review &amp; publish</h2>
-      <div className="listing-grid review-grid"><ListingCard listing={preview} saved={false} onSave={() => {}} /></div>
+      <div style={{ maxWidth: 280 }}><ListingCard listing={preview} saved={false} onSave={() => {}} /></div>
     </div>}
 
-    <div className="wizard-actions">{step < STEPS.length - 1
-      ? <button className="dark-button" disabled={!stepValid} onClick={() => setStep(step + 1)}>Continue <span>→</span></button>
-      : <button className="dark-button" onClick={onPublish}>{editingId ? 'Save changes' : 'Publish listing'} <span>→</span></button>}</div>
+    <div className="d-flex justify-content-end border-top mt-4 pt-4">{step < STEPS.length - 1
+      ? <button className="btn btn-primary rounded-pill px-4" disabled={!stepValid} onClick={() => setStep(step + 1)}>Continue →</button>
+      : <button className="btn btn-primary rounded-pill px-4" onClick={onPublish}>{editingId ? 'Save changes' : 'Publish listing'} →</button>}</div>
   </section>
 }

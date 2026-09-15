@@ -15,7 +15,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
 
   return <ToastContext.Provider value={{ show }}>
     {children}
-    {toast && <div className="toast" role="status">{toast}</div>}
+    {toast && <div className="toast-pop bg-dark text-white px-4 py-2 fw-semibold small" role="status">{toast}</div>}
   </ToastContext.Provider>
 }
 

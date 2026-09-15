@@ -1,22 +1,22 @@
-import { Check, ChevronDown, Filter, MapPin, Search, ShieldCheck, Sprout, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { Carrot, ChevronDown, Search, Sprout, TreeDeciduous, Wheat } from 'lucide-react'
+import { useEffect, useMemo, useState, type ComponentType } from 'react'
 import { useLocation } from 'react-router-dom'
 import { ListingCard } from '../components/ListingCard'
 import { useReveal } from '../hooks/useReveal'
 import { categories } from '../lib/data'
 import { useListings } from '../context/ListingsContext'
 
+const CATEGORY_ICONS: Record<string, ComponentType<{ size?: number }>> = { 'All land': Sprout, Vegetables: Carrot, Grains: Wheat, Orchards: TreeDeciduous }
+
 export function DiscoverPage() {
   const { listings, saved, toggleSaved } = useListings()
   const [category, setCategory] = useState('All land')
   const [query, setQuery] = useState('')
-  const [filters, setFilters] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
     if (!location.hash) return
-    const target = document.querySelector(location.hash)
-    target?.scrollIntoView({ behavior: 'smooth' })
+    document.querySelector(location.hash)?.scrollIntoView({ behavior: 'smooth' })
   }, [location.hash])
 
   const visible = useMemo(() => listings.filter((item) => {
@@ -28,46 +28,58 @@ export function DiscoverPage() {
 
   const heroCopyReveal = useReveal<HTMLDivElement>()
   const heroArtReveal = useReveal<HTMLDivElement>(120)
-  const searchReveal = useReveal<HTMLElement>(160)
-  const planningArtReveal = useReveal<HTMLDivElement>()
-  const planningCopyReveal = useReveal<HTMLDivElement>(120)
 
   return <>
-    <section className="hero" id="discover">
-      <div ref={heroCopyReveal.ref} className={`hero-copy ${heroCopyReveal.className}`} style={heroCopyReveal.style}>
-        <p className="eyebrow"><span className="eyebrow-dot" /> THE GROUND IS WAITING</p>
-        <h1>Find your patch.<br /><em>Grow your future.</em></h1>
-        <p className="hero-description">Verified farmland for your next season, with the tools and support to make it thrive.</p>
-        <div className="trust-row"><span><ShieldCheck size={16} /> Verified landowners</span><span><Check size={16} /> Simple, secure leases</span></div>
+    <section className="container-xxl py-5" id="discover">
+      <div className="row align-items-center g-5">
+        <div ref={heroCopyReveal.ref} className={`col-lg-6 ${heroCopyReveal.className}`} style={heroCopyReveal.style}>
+          <h1 className="hero-heading mb-3">Find your patch.<br />Grow your <span className="accent">future</span>.</h1>
+          <p className="text-secondary fs-5 mb-4" style={{ maxWidth: 440 }}>Verified farmland for your next season, with the tools and support to make it thrive.</p>
+        </div>
+        <div ref={heroArtReveal.ref} className={`col-lg-6 ${heroArtReveal.className}`} style={heroArtReveal.style}>
+          <div className="hero-photo" style={{ height: 340 }}>
+            <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=85" alt="Farmland at sunset" />
+            <span className="hero-photo-badge">Est. 2026 · Zimbabwe</span>
+          </div>
+        </div>
       </div>
-      <div ref={heroArtReveal.ref} className={`hero-art ${heroArtReveal.className}`} style={heroArtReveal.style}>
-        <div className="hero-image" />
-        <div className="hero-stamp"><span>FIELD</span><strong>02</strong><span>FIND YOURS</span></div>
-        <div className="hero-caption"><span className="caption-line" /> <span>Est. 2026 / Zimbabwe</span></div>
+    </section>
+
+    <section className="container-xxl pb-4" aria-label="Search farmland">
+      <div className="search-pill">
+        <button className="search-segment d-none d-sm-block"><span className="segment-label">Where</span><span className="segment-value d-flex align-items-center gap-1">Harare &amp; surrounds <ChevronDown size={13} /></span></button>
+        <span className="search-divider d-none d-sm-block" />
+        <div className="search-segment"><label className="segment-label" htmlFor="crop-search">Growing</label><input id="crop-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Crop, land name or area" /></div>
+        <button className="search-submit" aria-label="Search"><Search size={18} /></button>
       </div>
     </section>
-    <section ref={searchReveal.ref} className={`search-panel ${searchReveal.className}`} style={searchReveal.style} aria-label="Search farmland">
-      <div className="search-field"><MapPin size={19} /><div><label>Where do you want to farm?</label><button>Harare &amp; surrounds <ChevronDown size={14} /></button></div></div>
-      <div className="search-divider" />
-      <div className="search-field"><Sprout size={19} /><div><label>What are you growing?</label><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Crop, land name or area" /></div></div>
-      <button className="search-button"><Search size={19} /><span>Search</span></button>
+
+    <section className="container-xxl border-bottom pb-1">
+      <div className="category-bar d-flex gap-4 overflow-auto">
+        {categories.map((item) => {
+          const Icon = CATEGORY_ICONS[item]
+          return <button key={item} className={category === item ? 'category-item active' : 'category-item'} onClick={() => setCategory(item)}><Icon size={22} /><span>{item}</span></button>
+        })}
+      </div>
     </section>
-    <section className="content-section">
-      <div className="section-heading"><div><p className="section-kicker">CURATED FOR YOU</p><h2>Land ready to grow on</h2></div><button className="outline-button" onClick={() => setFilters(!filters)}><Filter size={16} /> Filters <span className="filter-count">3</span></button></div>
-      <div className="category-row">{categories.map((item) => <button key={item} className={category === item ? 'category active' : 'category'} onClick={() => setCategory(item)}>{item}</button>)}<span className="result-count">{visible.length} of {listings.length} listings</span></div>
-      {filters && <div className="filter-tray"><span><ShieldCheck size={16} /> Verified only</span><span><Sprout size={16} /> Soil report</span><span>Under $200 / month</span><button onClick={() => setFilters(false)} aria-label="Close filters"><X size={16} /></button></div>}
-      <div className="listing-grid">{visible.map((listing, index) => <ListingCard key={listing.id} listing={listing} saved={saved.includes(listing.id)} onSave={toggleSaved} delay={index * 60} />)}</div>
-      {visible.length === 0 && <div className="empty-state">No plots match that search yet. Try a broader crop or area.</div>}
-      <button className="load-more">View all available land <span>→</span></button>
+
+    <section className="container-xxl py-5">
+      <div className="d-flex align-items-baseline justify-content-between mb-4">
+        <h2 className="fw-bold mb-0">Land ready to grow on</h2>
+        <span className="text-secondary small">{visible.length} of {listings.length} listings</span>
+      </div>
+      <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
+        {visible.map((listing, index) => <div className="col" key={listing.id}><ListingCard listing={listing} saved={saved.includes(listing.id)} onSave={toggleSaved} delay={index * 60} /></div>)}
+      </div>
+      {visible.length === 0 && <div className="text-center text-secondary py-5">No plots match that search yet. Try a broader crop or area.</div>}
     </section>
-    <section className="planning-section" id="resources">
-      <div ref={planningArtReveal.ref} className={`planning-art ${planningArtReveal.className}`} style={planningArtReveal.style}><div className="planning-circle">01</div><div className="field-lines" /></div>
-      <div ref={planningCopyReveal.ref} className={`planning-copy ${planningCopyReveal.className}`} style={planningCopyReveal.style}>
-        <p className="section-kicker">FROM LEASE TO HARVEST</p>
-        <h2 id="how-it-works">More than land.<br /><em>A head start.</em></h2>
-        <p>Know what to plant, when to plant it, and where to find what you need. Your farm plan starts the moment you find your field.</p>
-        <button className="dark-button">Explore farm planning <span>↗</span></button>
-        <div className="planning-points"><span><Check size={15} /> Crop guidance</span><span><Check size={15} /> Seasonal plans</span><span><Check size={15} /> Local suppliers</span></div>
+
+    <section className="bg-dark text-white py-5" id="resources">
+      <div className="container-xxl">
+        <p className="text-uppercase small fw-bold mb-2" style={{ letterSpacing: '.12em', color: '#d9ef87' }}>From lease to harvest</p>
+        <h2 id="how-it-works" className="fw-bold display-6 mb-3">More than land. A head start.</h2>
+        <p className="text-white-50 mb-4" style={{ maxWidth: 480 }}>Know what to plant, when to plant it, and where to find what you need. Your farm plan starts the moment you find your field.</p>
+        <button className="btn btn-light rounded-pill fw-semibold">Explore farm planning →</button>
       </div>
     </section>
   </>

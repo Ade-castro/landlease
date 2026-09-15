@@ -8,9 +8,9 @@ import { HostWizardPage } from './pages/HostWizardPage'
 
 function App() {
   const location = useLocation()
-  return <div className="app-shell">
+  return <div className="app-shell d-flex flex-column min-vh-100">
     <Header />
-    <main id="top">
+    <main id="top" className="flex-grow-1">
       <div key={location.pathname} className="view-transition">
         <Routes location={location}>
           <Route path="/" element={<Navigate to="/discover" replace />} />
@@ -28,7 +28,7 @@ function App() {
 }
 
 function NotFound() {
-  return <section className="content-section empty-state">Page not found.</section>
+  return <section className="container-xxl py-5 text-center text-secondary">Page not found.</section>
 }
 
 export default App
