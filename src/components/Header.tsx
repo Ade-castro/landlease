@@ -53,7 +53,6 @@ export function Header() {
         <div className="position-relative">
           <button className="profile-pill" aria-label="Account menu" aria-expanded={openPanel === 'profile'} onClick={() => setOpenPanel(openPanel === 'profile' ? 'none' : 'profile')}><Menu size={16} /><span className="avatar">TM</span></button>
           {openPanel === 'profile' && <div className="dropdown-panel dropdown-panel-end">
-            <p className="fw-bold px-2 mb-2">Tendai M.</p>
             <button className="dropdown-item" onClick={() => navigate('/saved')}><Heart size={16} /> Saved plots</button>
             <button className="dropdown-item" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
             <button className="dropdown-item" onClick={() => navigate('/discover#resources')}><HelpCircle size={16} /> Help centre</button>
