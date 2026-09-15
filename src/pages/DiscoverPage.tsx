@@ -22,7 +22,7 @@ export function DiscoverPage() {
   const visible = useMemo(() => listings.filter((item) => {
     const text = `${item.name} ${item.area} ${item.crop}`.toLowerCase()
     const queryMatch = text.includes(query.toLowerCase())
-    const categoryMatch = category === 'All land' || item.crop.toLowerCase().includes(category.slice(0, -1).toLowerCase())
+    const categoryMatch = category === 'All land' || item.category === category
     return queryMatch && categoryMatch
   }), [category, query, listings])
 

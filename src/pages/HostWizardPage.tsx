@@ -4,8 +4,10 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { ListingCard } from '../components/ListingCard'
 import { useListings } from '../context/ListingsContext'
 import { useToast } from '../context/ToastContext'
-import { emptyDraft, listingToDraft, PLACEHOLDER_IMAGE, STEPS, TAG_OPTIONS } from '../lib/data'
-import type { Draft } from '../lib/types'
+import { categories, emptyDraft, listingToDraft, PLACEHOLDER_IMAGE, STEPS, TAG_OPTIONS } from '../lib/data'
+import type { Category, Draft } from '../lib/types'
+
+const CATEGORY_OPTIONS = categories.filter((item): item is Category => item !== 'All land')
 
 export function HostWizardPage() {
   const { id } = useParams()
@@ -26,10 +28,10 @@ export function HostWizardPage() {
     true,
     true,
   ][step]
-  const preview = { id: 0, name: draft.name || 'Your land name', area: draft.area || 'Area, region', size: draft.size || 'Size', price: draft.price ? `$${draft.price} / ${draft.unit}` : 'Set a price', detail: draft.detail || 'Lease term', crop: draft.crop || 'Crop', image: draft.image || PLACEHOLDER_IMAGE, tags: draft.tags }
+  const preview = { id: 0, name: draft.name || 'Your land name', area: draft.area || 'Area, region', size: draft.size || 'Size', price: draft.price ? `$${draft.price} / ${draft.unit}` : 'Set a price', detail: draft.detail || 'Lease term', crop: draft.crop || 'Crop', category: draft.category, image: draft.image || PLACEHOLDER_IMAGE, tags: draft.tags }
 
   const onPublish = () => {
-    const listing = { id: editingId ?? Date.now(), name: draft.name, area: draft.area, size: draft.size, crop: draft.crop, tags: draft.tags, price: `$${draft.price} / ${draft.unit}`, detail: draft.detail, image: draft.image || PLACEHOLDER_IMAGE, description: draft.description, ownerId: 'me' as const }
+    const listing = { id: editingId ?? Date.now(), name: draft.name, area: draft.area, size: draft.size, crop: draft.crop, category: draft.category, tags: draft.tags, price: `$${draft.price} / ${draft.unit}`, detail: draft.detail, image: draft.image || PLACEHOLDER_IMAGE, description: draft.description, ownerId: 'me' as const }
     publish(listing, editingId)
     show(editingId ? 'Changes saved.' : 'Listing published — it’s now live in Discover land.')
     navigate('/host')
@@ -53,6 +55,7 @@ export function HostWizardPage() {
     {step === 1 && <div className="wizard-step">
       <h2>What can grow there?</h2>
       <div className="mb-3"><label className="form-label fw-semibold">Primary crop</label><input className="form-control" value={draft.crop} onChange={(event) => update({ crop: event.target.value })} placeholder="e.g. Leafy greens" /></div>
+      <div className="mb-3"><label className="form-label fw-semibold">Category</label><select className="form-select" value={draft.category} onChange={(event) => update({ category: event.target.value as Category })}>{CATEGORY_OPTIONS.map((item) => <option key={item} value={item}>{item}</option>)}</select><div className="form-text">Decides which tab your listing shows up under on Discover land.</div></div>
       <label className="form-label fw-semibold">Features</label>
       <div className="tag-picker d-flex flex-wrap gap-2 mb-3">{TAG_OPTIONS.map((tag) => <button key={tag} type="button" className={draft.tags.includes(tag) ? 'btn btn-dark rounded-pill btn-sm d-flex align-items-center gap-1' : 'btn btn-outline-secondary rounded-pill btn-sm d-flex align-items-center gap-1'} onClick={() => toggleTag(tag)}>{draft.tags.includes(tag) && <Check size={12} />} {tag}</button>)}</div>
       <div className="mb-3"><label className="form-label fw-semibold">Description (optional)</label><textarea className="form-control" value={draft.description} onChange={(event) => update({ description: event.target.value })} placeholder="What makes this land worth leasing?" rows={3} /></div>
