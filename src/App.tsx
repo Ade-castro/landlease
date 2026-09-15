@@ -5,6 +5,7 @@ import { DiscoverPage } from './pages/DiscoverPage'
 import { ListingDetailPage } from './pages/ListingDetailPage'
 import { HostDashboardPage } from './pages/HostDashboardPage'
 import { HostWizardPage } from './pages/HostWizardPage'
+import { SavedPage } from './pages/SavedPage'
 
 function App() {
   const location = useLocation()
@@ -16,6 +17,7 @@ function App() {
           <Route path="/" element={<Navigate to="/discover" replace />} />
           <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/listing/:id" element={<ListingDetailPage />} />
+          <Route path="/saved" element={<SavedPage />} />
           <Route path="/host" element={<HostDashboardPage />} />
           <Route path="/host/new" element={<HostWizardPage />} />
           <Route path="/host/:id/edit" element={<HostWizardPage />} />

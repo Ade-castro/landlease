@@ -25,6 +25,11 @@ a { text-decoration: none; }
 .mobile-menu a:first-child { border-top: 0; }
 @keyframes menu-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
 
+.dropdown-panel { animation: menu-in .16s ease both; background: #fff; border-radius: var(--bs-border-radius-lg); box-shadow: 0 12px 32px rgba(0, 0, 0, .18); left: 0; min-width: 260px; padding: 1rem; position: absolute; top: calc(100% + 10px); z-index: 1060; }
+.dropdown-panel-end { left: auto; right: 0; }
+.dropdown-item { align-items: center; background: none; border: 0; border-radius: var(--bs-border-radius-sm); display: flex; font-size: .875rem; font-weight: 600; gap: .6rem; padding: .6rem .5rem; text-align: left; width: 100%; }
+.dropdown-item:hover { background: var(--bs-tertiary-bg); }
+
 /* Hero */
 .hero-heading { font-size: clamp(2.25rem, 4.5vw, 3.5rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.05; }
 .hero-heading .accent { color: var(--bs-primary); }
