@@ -6,6 +6,7 @@ import { useListings } from '../context/ListingsContext'
 import { useToast } from '../context/ToastContext'
 import { categories, emptyDraft, listingToDraft, PLACEHOLDER_IMAGE, STEPS, TAG_OPTIONS } from '../lib/data'
 import type { Category, Draft } from '../lib/types'
+import { useFlow } from '../context/FlowContext'
 
 const CATEGORY_OPTIONS = categories.filter((item): item is Category => item !== 'All land')
 
@@ -15,6 +16,7 @@ export function HostWizardPage() {
   const { getListing, publish } = useListings()
   const { show } = useToast()
   const navigate = useNavigate()
+  const { profile } = useFlow()
   const existing = editingId ? getListing(editingId) : undefined
   const [draft, setDraft] = useState<Draft>(() => existing ? listingToDraft(existing) : emptyDraft)
   const [step, setStep] = useState(0)
@@ -22,20 +24,22 @@ export function HostWizardPage() {
   const update = (patch: Partial<Draft>) => setDraft((current) => ({ ...current, ...patch }))
   const toggleTag = (tag: string) => update({ tags: draft.tags.includes(tag) ? draft.tags.filter((item) => item !== tag) : [...draft.tags, tag] })
   const stepValid = [
-    draft.name.trim() !== '' && draft.area.trim() !== '' && draft.size.trim() !== '',
+    draft.name.trim() !== '' && draft.area.trim() !== '' && draft.size.trim() !== '' && draft.boundary.trim() !== '',
     draft.crop.trim() !== '',
     draft.price.trim() !== '',
-    true,
+    draft.proofDeclared,
     true,
   ][step]
   const preview = { id: 0, name: draft.name || 'Your land name', area: draft.area || 'Area, region', size: draft.size || 'Size', price: draft.price ? `$${draft.price} / ${draft.unit}` : 'Set a price', detail: draft.detail || 'Lease term', crop: draft.crop || 'Crop', category: draft.category, image: draft.image || PLACEHOLDER_IMAGE, tags: draft.tags }
 
   const onPublish = () => {
-    const listing = { id: editingId ?? Date.now(), name: draft.name, area: draft.area, size: draft.size, crop: draft.crop, category: draft.category, tags: draft.tags, price: `$${draft.price} / ${draft.unit}`, detail: draft.detail, image: draft.image || PLACEHOLDER_IMAGE, description: draft.description, ownerId: 'me' as const }
+    const listing = { id: editingId ?? Date.now(), name: draft.name, area: draft.area, size: draft.size, crop: draft.crop, category: draft.category, tags: draft.tags, price: `$${draft.price} / ${draft.unit}`, detail: draft.detail, image: draft.image || PLACEHOLDER_IMAGE, description: draft.description, history: draft.history, soil: draft.soil, boundary: draft.boundary, proofDeclared: draft.proofDeclared, verificationStatus: 'pending' as const, ownerId: 'me' as const }
     publish(listing, editingId)
-    show(editingId ? 'Changes saved.' : 'Listing published — it’s now live in Discover land.')
+    show(editingId ? 'Changes saved for review.' : 'Listing submitted. Admin verification is needed before it goes live.')
     navigate('/host')
   }
+
+  if (!profile || profile.role !== 'landowner') return <section className="container-xxl py-5"><h1>Landowner onboarding</h1><p>Complete your landowner profile before creating a listing.</p><button className="btn btn-primary" onClick={() => navigate('/account?next=' + encodeURIComponent('/host/new'))}>Continue</button></section>
 
   return <section className="container-xxl py-4 py-lg-5" style={{ maxWidth: 720 }}>
     <div className="d-flex align-items-center gap-3 mb-4">
@@ -50,6 +54,7 @@ export function HostWizardPage() {
       <div className="mb-3"><label className="form-label fw-semibold">Land name</label><input className="form-control" value={draft.name} onChange={(event) => update({ name: event.target.value })} placeholder="e.g. Mbare Greenbelt Plot" /></div>
       <div className="mb-3"><label className="form-label fw-semibold">Area / region</label><input className="form-control" value={draft.area} onChange={(event) => update({ area: event.target.value })} placeholder="e.g. Harare South, Harare" /></div>
       <div className="mb-3"><label className="form-label fw-semibold">Size</label><input className="form-control" value={draft.size} onChange={(event) => update({ size: event.target.value })} placeholder="e.g. 2.4 hectares" /></div>
+      <div className="mb-3"><label className="form-label fw-semibold">Land boundary / map reference</label><textarea className="form-control" value={draft.boundary} onChange={e => update({ boundary: e.target.value })} placeholder="GPS coordinates or description of plot boundaries" /><div className="form-text">Map polygon drawing needs a mapping service.</div></div>
     </div>}
 
     {step === 1 && <div className="wizard-step">
@@ -59,6 +64,8 @@ export function HostWizardPage() {
       <label className="form-label fw-semibold">Features</label>
       <div className="tag-picker d-flex flex-wrap gap-2 mb-3">{TAG_OPTIONS.map((tag) => <button key={tag} type="button" className={draft.tags.includes(tag) ? 'btn btn-dark rounded-pill btn-sm d-flex align-items-center gap-1' : 'btn btn-outline-secondary rounded-pill btn-sm d-flex align-items-center gap-1'} onClick={() => toggleTag(tag)}>{draft.tags.includes(tag) && <Check size={12} />} {tag}</button>)}</div>
       <div className="mb-3"><label className="form-label fw-semibold">Description (optional)</label><textarea className="form-control" value={draft.description} onChange={(event) => update({ description: event.target.value })} placeholder="What makes this land worth leasing?" rows={3} /></div>
+      <div className="mb-3"><label className="form-label fw-semibold">Land state and crop history</label><textarea className="form-control" value={draft.history} onChange={e => update({ history: e.target.value })} placeholder="Fallow, tilled, previous crops and years" /></div>
+      <div className="mb-3"><label className="form-label fw-semibold">Soil testing status</label><input className="form-control" value={draft.soil} onChange={e => update({ soil: e.target.value })} placeholder="Not tested, or brief report summary" /></div>
     </div>}
 
     {step === 2 && <div className="wizard-step">
@@ -75,15 +82,17 @@ export function HostWizardPage() {
       <h2>Add a photo</h2>
       <div className="mb-3"><label className="form-label fw-semibold">Image URL</label><input className="form-control" value={draft.image} onChange={(event) => update({ image: event.target.value })} placeholder="Paste a photo link, or leave blank for a placeholder" /></div>
       <div className="photo-preview">{draft.image ? <img src={draft.image} alt="Preview" /> : <div className="photo-placeholder"><ImagePlus size={22} /><span>No photo yet</span></div>}</div>
+      <label className="d-flex gap-2 mt-3"><input type="checkbox" checked={draft.proofDeclared} onChange={e => update({ proofDeclared: e.target.checked })} /> I have proof of ownership or the right to lease this land, and understand that admin review is required before publication.</label>
+      <p className="small text-secondary mt-2">Secure document upload and deletion after review require a backend. Do not enter identity numbers or document links here.</p>
     </div>}
 
     {step === 4 && <div className="wizard-step">
-      <h2>Review &amp; publish</h2>
+      <h2>Review &amp; submit for verification</h2>
       <div style={{ maxWidth: 280 }}><ListingCard listing={preview} saved={false} onSave={() => {}} /></div>
     </div>}
 
     <div className="d-flex justify-content-end border-top mt-4 pt-4">{step < STEPS.length - 1
       ? <button className="btn btn-primary rounded-pill px-4" disabled={!stepValid} onClick={() => setStep(step + 1)}>Continue →</button>
-      : <button className="btn btn-primary rounded-pill px-4" onClick={onPublish}>{editingId ? 'Save changes' : 'Publish listing'} →</button>}</div>
+      : <button className="btn btn-primary rounded-pill px-4" disabled={!draft.proofDeclared} onClick={onPublish}>{editingId ? 'Save changes' : 'Submit listing'} →</button>}</div>
   </section>
 }

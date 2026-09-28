@@ -19,11 +19,11 @@ export const seedListings: Listing[] = [
 
 export const categories: ('All land' | Category)[] = ['All land', 'Vegetables', 'Grains', 'Orchards']
 export const TAG_OPTIONS = ['Borehole', 'Fenced', 'Irrigation', 'Storage', 'Shed', 'Power nearby', 'River access', 'Tilled']
-export const STEPS = ['Basics', 'Crop & features', 'Price & term', 'Photo', 'Review']
+export const STEPS = ['Location & boundaries', 'Land history & amenities', 'Price & term', 'Photos & verification', 'Review']
 export const PLACEHOLDER_IMAGE = 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=85'
 export const MY_LISTINGS_KEY = 'landlease-my-listings'
 export const SAVED_KEY = 'landlease-saved'
-export const emptyDraft: Draft = { name: '', area: '', size: '', crop: '', category: 'Vegetables', tags: [], price: '', unit: 'season', detail: '', image: '', description: '' }
+export const emptyDraft: Draft = { name: '', area: '', size: '', crop: '', category: 'Vegetables', tags: [], price: '', unit: 'season', detail: '', image: '', description: '', history: '', soil: '', boundary: '', proofDeclared: false }
 
 export function loadMyListings(): Listing[] {
   try { return JSON.parse(localStorage.getItem(MY_LISTINGS_KEY) ?? '[]') } catch { return [] }
@@ -33,5 +33,5 @@ export function loadSaved(): number[] {
 }
 export function listingToDraft(listing: Listing): Draft {
   const [price, unit] = listing.price.replace('$', '').split(' / ')
-  return { name: listing.name, area: listing.area, size: listing.size, crop: listing.crop, category: listing.category, tags: listing.tags, price, unit: unit === 'month' ? 'month' : 'season', detail: listing.detail, image: listing.image, description: listing.description ?? '' }
+  return { name: listing.name, area: listing.area, size: listing.size, crop: listing.crop, category: listing.category, tags: listing.tags, price, unit: unit === 'month' ? 'month' : 'season', detail: listing.detail, image: listing.image, description: listing.description ?? '', history: listing.history ?? '', soil: listing.soil ?? '', boundary: listing.boundary ?? '', proofDeclared: listing.proofDeclared ?? false }
 }

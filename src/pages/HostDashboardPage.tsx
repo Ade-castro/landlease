@@ -4,9 +4,12 @@ import { useReveal } from '../hooks/useReveal'
 import { useListings } from '../context/ListingsContext'
 import { useToast } from '../context/ToastContext'
 import type { Listing } from '../lib/types'
+import { useFlow } from '../context/FlowContext'
+import { Link } from 'react-router-dom'
 
 export function HostDashboardPage() {
   const { myListings, remove } = useListings()
+  const { cases } = useFlow()
   const { show } = useToast()
   const navigate = useNavigate()
   const heroCopyReveal = useReveal<HTMLDivElement>()
@@ -29,6 +32,7 @@ export function HostDashboardPage() {
       </div>
     </section>
     <section className="container-xxl pb-5">
+      <div className="mb-4"><h2 className="h4">Visit and lease requests</h2>{cases.filter(c => myListings.some(l => l.id === c.listingId)).length === 0 ? <p className="text-secondary">No requests yet.</p> : cases.filter(c => myListings.some(l => l.id === c.listingId)).map(c => <p key={c.id}><Link to={'/lease/' + c.id}>Request #{c.id}</Link> · {c.visitStatus} · {c.status}</p>)}</div>
       <div className="d-flex align-items-baseline justify-content-between mb-4">
         <h2 className="fw-bold mb-0">Manage your listings</h2>
         {myListings.length > 0 && <button className="btn btn-outline-dark rounded-pill d-flex align-items-center gap-2" onClick={() => navigate('/host/new')}><Plus size={16} /> List new land</button>}
@@ -47,7 +51,7 @@ export function HostDashboardPage() {
 function HostListingCard({ listing, onEdit, onRemove, delay = 0 }: { listing: Listing; onEdit: () => void; onRemove: () => void; delay?: number }) {
   const reveal = useReveal<HTMLElement>(delay)
   return <article ref={reveal.ref} className={`listing-card-ab ${reveal.className}`} style={reveal.style}>
-    <div className="listing-media"><img src={listing.image} alt={listing.name} /><span className="live-badge">Live</span></div>
+    <div className="listing-media"><img src={listing.image} alt={listing.name} /><span className="live-badge">{listing.verificationStatus === 'pending' ? 'Pending review' : 'Live'}</span></div>
     <div className="pt-2">
       <h3 className="listing-title mb-1 text-truncate">{listing.name}</h3>
       <p className="text-secondary small mb-1 d-flex align-items-center gap-1"><MapPin size={12} /> {listing.area}</p>

@@ -20,6 +20,7 @@ export function DiscoverPage() {
   }, [location.hash])
 
   const visible = useMemo(() => listings.filter((item) => {
+    if (item.verificationStatus === 'pending') return false
     const text = `${item.name} ${item.area} ${item.crop}`.toLowerCase()
     const queryMatch = text.includes(query.toLowerCase())
     const categoryMatch = category === 'All land' || item.category === category
@@ -34,7 +35,7 @@ export function DiscoverPage() {
       <div className="row align-items-center g-5">
         <div ref={heroCopyReveal.ref} className={`col-lg-6 ${heroCopyReveal.className}`} style={heroCopyReveal.style}>
           <h1 className="hero-heading mb-3">Find your patch.<br />Grow your <span className="accent">future</span>.</h1>
-          <p className="text-secondary fs-5 mb-4" style={{ maxWidth: 440 }}>Verified farmland for your next season, with the tools and support to make it thrive.</p>
+          <p className="text-secondary fs-5 mb-4" style={{ maxWidth: 440 }}>Explore farmland for your next season, compare plots and request a farm visit before agreeing to a lease.</p>
         </div>
         <div ref={heroArtReveal.ref} className={`col-lg-6 ${heroArtReveal.className}`} style={heroArtReveal.style}>
           <div className="hero-photo" style={{ height: 340 }}>

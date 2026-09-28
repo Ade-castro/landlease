@@ -6,6 +6,8 @@ import { ListingDetailPage } from './pages/ListingDetailPage'
 import { HostDashboardPage } from './pages/HostDashboardPage'
 import { HostWizardPage } from './pages/HostWizardPage'
 import { SavedPage } from './pages/SavedPage'
+import { AccountPage } from './pages/AccountPage'
+import { LeaseFlowPage } from './pages/LeaseFlowPage'
 
 function App() {
   const location = useLocation()
@@ -18,6 +20,8 @@ function App() {
           <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/listing/:id" element={<ListingDetailPage />} />
           <Route path="/saved" element={<SavedPage />} />
+          <Route path="/account" element={<AccountPage />} />
+          <Route path="/lease/:id" element={<LeaseFlowPage />} />
           <Route path="/host" element={<HostDashboardPage />} />
           <Route path="/host/new" element={<HostWizardPage />} />
           <Route path="/host/:id/edit" element={<HostWizardPage />} />

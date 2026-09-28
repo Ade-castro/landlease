@@ -1,12 +1,14 @@
-import { Bell, BellOff, Heart, HelpCircle, LogOut, Menu, Sprout, X } from 'lucide-react'
+import { Bell, BellOff, Heart, HelpCircle, LogOut, Menu, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
+import { useFlow } from '../context/FlowContext'
 
 export function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const { show } = useToast()
+  const { profile, logout, cases } = useFlow()
   const isHost = location.pathname.startsWith('/host')
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -34,7 +36,7 @@ export function Header() {
 
   return <header className={scrolled ? 'landlease-navbar scrolled bg-white sticky-top border-bottom py-3 position-relative' : 'landlease-navbar bg-white sticky-top border-bottom py-3 position-relative'}>
     <div className="container-xxl d-flex align-items-center justify-content-between position-relative" ref={panelRef}>
-      <Link className="d-flex align-items-center gap-2 fw-bold fs-5 text-dark" to="/discover"><span className="brand-mark"><Sprout size={18} /></span><span>landlease</span></Link>
+      <Link className="d-flex align-items-center gap-2 fw-bold fs-5 text-dark" to="/discover"><img src={import.meta.env.BASE_URL + 'brand/primary.png'} alt="Landlease" style={{ height: 46, width: 46, objectFit: 'contain' }} /><span>landlease</span></Link>
       <nav className="nav-links d-none d-lg-flex gap-4 position-absolute top-50 start-50 translate-middle">{isHost ? hostLinks : guestLinks}</nav>
       <div className="d-flex align-items-center gap-2">
         <button className="btn host-toggle-btn rounded-pill fw-semibold d-none d-md-inline-block" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
@@ -51,13 +53,15 @@ export function Header() {
         </div>
 
         <div className="position-relative">
-          <button className="profile-pill" aria-label="Account menu" aria-expanded={openPanel === 'profile'} onClick={() => setOpenPanel(openPanel === 'profile' ? 'none' : 'profile')}><Menu size={16} /><span className="avatar">TM</span></button>
+          <button className="profile-pill" aria-label="Account menu" aria-expanded={openPanel === 'profile'} onClick={() => setOpenPanel(openPanel === 'profile' ? 'none' : 'profile')}><Menu size={16} /><span className="avatar">{profile?.name.slice(0, 2).toUpperCase() || 'GO'}</span></button>
           {openPanel === 'profile' && <div className="dropdown-panel dropdown-panel-end">
             <button className="dropdown-item" onClick={() => navigate('/saved')}><Heart size={16} /> Saved plots</button>
+            <button className="dropdown-item" onClick={() => navigate('/account')}>{profile ? 'Edit profile' : 'Create profile'}</button>
+            {profile?.role === 'tenant' && cases.filter(c => c.tenant === profile.email).map(c => <button key={c.id} className="dropdown-item" onClick={() => navigate('/lease/' + c.id)}>My lease request #{c.id}</button>)}
             <button className="dropdown-item" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
             <button className="dropdown-item" onClick={() => navigate('/discover#resources')}><HelpCircle size={16} /> Help centre</button>
             <hr className="my-2" />
-            <button className="dropdown-item" onClick={() => { setOpenPanel('none'); show('This is a demo — accounts aren’t wired up yet.') }}><LogOut size={16} /> Log out</button>
+            <button className="dropdown-item" onClick={() => { setOpenPanel('none'); if (profile) { logout(); navigate('/discover'); show('Local profile cleared.') } else navigate('/account') }}><LogOut size={16} /> {profile ? 'Leave profile' : 'Get started'}</button>
           </div>}
         </div>
 
