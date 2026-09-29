@@ -31,6 +31,15 @@ export function ContractPage() {
       await reload()
     } catch (cause) { setError(errorText(cause)) } finally { setBusy(false) }
   }
+  async function simulatePayment() {
+    if (!order) return
+    setBusy(true); setError('')
+    try {
+      const { error: rpcError } = await supabase.rpc('simulate_demo_payment', { p_order_id: order.id })
+      if (rpcError) throw rpcError
+      await reload()
+    } catch (cause) { setError(errorText(cause)) } finally { setBusy(false) }
+  }
   if (authLoading || loading) return <section className="container py-5">Loading agreement…</section>
   if (!user) return <section className="container py-5"><Link to="/account">Sign in</Link> to see your agreement.</section>
   if (!record) return <section className="container py-5">Agreement not found or access denied. {error && <p role="alert">{error}</p>}</section>
@@ -50,7 +59,14 @@ export function ContractPage() {
     <div className="card p-4 mb-3"><h2 className="h5">Payment and commission</h2><p>Total: USD {Number(record.amount).toFixed(2)} · Landlease 3%: USD {(Math.round(Number(record.amount) * 3) / 100).toFixed(2)} · Landowner: USD {(Number(record.amount) - Math.round(Number(record.amount) * 3) / 100).toFixed(2)}</p>
       {!both && <p>Payment is locked until both parties accept.</p>}
       {both && !owner && !order && <button disabled={busy} className="btn btn-outline-primary align-self-start" onClick={() => void act('payment')}>Prepare payment order</button>}
-      {order?.status === 'paid' ? <><p className="text-success">Paid · Provider reference {order.provider_reference} · {order.paid_at && new Date(order.paid_at).toLocaleString()}</p><p>Receipt #{order.id}<br />Amount USD {Number(order.amount).toFixed(2)}<br />Commission USD {Number(order.commission).toFixed(2)}<br />Landowner allocation USD {Number(order.landowner_amount).toFixed(2)}</p><button className="btn btn-outline-dark align-self-start" onClick={() => window.print()}>Print receipt and agreement</button></> : both && <p className="alert alert-warning mb-0 mt-2">Live payment is unavailable until a licensed gateway with direct merchant settlement and commission splitting is connected. No money has been collected. An order alone does not activate the lease.</p>}
+      {order?.status === 'paid' ? <>
+        <p className={order.provider_reference?.startsWith('DEMO-') ? 'text-warning fw-semibold' : 'text-success'}>{order.provider_reference?.startsWith('DEMO-') ? 'DEMO PAYMENT — simulated, no real money moved' : 'Paid'} · Provider reference {order.provider_reference} · {order.paid_at && new Date(order.paid_at).toLocaleString()}</p>
+        <p>Receipt #{order.id}<br />Amount USD {Number(order.amount).toFixed(2)}<br />Commission USD {Number(order.commission).toFixed(2)}<br />Landowner allocation USD {Number(order.landowner_amount).toFixed(2)}</p>
+        <button className="btn btn-outline-dark align-self-start" onClick={() => window.print()}>Print receipt and agreement</button>
+      </> : both && <>
+        <p className="alert alert-warning mb-2">Live payment is unavailable until a licensed gateway with direct merchant settlement and commission splitting is connected. No money has been collected. An order alone does not activate the lease.</p>
+        {!owner && order && <button disabled={busy} className="btn btn-warning align-self-start" onClick={() => void simulatePayment()}>Simulate demo payment (no real money)</button>}
+      </>}
     </div>
     {record.status === 'active' && <Link className="btn btn-primary" to="/workspace?tab=planning">Plan this season</Link>}
     {error && <p className="alert alert-danger" role="alert">{error}</p>}
