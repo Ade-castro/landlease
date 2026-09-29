@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext'
 import { categories, emptyDraft, listingToDraft, PLACEHOLDER_IMAGE, STEPS, TAG_OPTIONS } from '../lib/data'
 import type { Category, Draft } from '../lib/types'
 import { useFlow } from '../context/FlowContext'
+import { supabase } from '../lib/supabase'
 
 const CATEGORY_OPTIONS = categories.filter((item): item is Category => item !== 'All land')
 
@@ -16,10 +17,13 @@ export function HostWizardPage() {
   const { getListing, publish } = useListings()
   const { show } = useToast()
   const navigate = useNavigate()
-  const { profile } = useFlow()
+  const { profile, user } = useFlow()
   const existing = editingId ? getListing(editingId) : undefined
   const [draft, setDraft] = useState<Draft>(() => existing ? listingToDraft(existing) : emptyDraft)
   const [step, setStep] = useState(0)
+  const [busy, setBusy] = useState(false)
+  const [photoBusy, setPhotoBusy] = useState(false)
+  const [error, setError] = useState('')
 
   const update = (patch: Partial<Draft>) => setDraft((current) => ({ ...current, ...patch }))
   const toggleTag = (tag: string) => update({ tags: draft.tags.includes(tag) ? draft.tags.filter((item) => item !== tag) : [...draft.tags, tag] })
@@ -32,11 +36,32 @@ export function HostWizardPage() {
   ][step]
   const preview = { id: 0, name: draft.name || 'Your land name', area: draft.area || 'Area, region', size: draft.size || 'Size', price: draft.price ? `$${draft.price} / ${draft.unit}` : 'Set a price', detail: draft.detail || 'Lease term', crop: draft.crop || 'Crop', category: draft.category, image: draft.image || PLACEHOLDER_IMAGE, tags: draft.tags }
 
-  const onPublish = () => {
-    const listing = { id: editingId ?? Date.now(), name: draft.name, area: draft.area, size: draft.size, crop: draft.crop, category: draft.category, tags: draft.tags, price: `$${draft.price} / ${draft.unit}`, detail: draft.detail, image: draft.image || PLACEHOLDER_IMAGE, description: draft.description, history: draft.history, soil: draft.soil, boundary: draft.boundary, proofDeclared: draft.proofDeclared, verificationStatus: 'pending' as const, ownerId: 'me' as const }
-    publish(listing, editingId)
-    show(editingId ? 'Changes saved for review.' : 'Listing submitted. Admin verification is needed before it goes live.')
-    navigate('/host')
+  const onPublish = async () => {
+    setBusy(true); setError('')
+    const listing = { id: editingId ?? 0, name: draft.name, area: draft.area, size: draft.size, crop: draft.crop, category: draft.category, tags: draft.tags, price: `$${draft.price} / ${draft.unit}`, detail: draft.detail, image: draft.image || PLACEHOLDER_IMAGE, description: draft.description, history: draft.history, soil: draft.soil, boundary: draft.boundary, proofDeclared: draft.proofDeclared, verificationStatus: 'pending' as const }
+    try {
+      await publish(listing, editingId)
+      show(editingId ? 'Changes saved for review.' : 'Listing submitted. Admin verification is needed before it goes live.')
+      navigate('/host')
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not save the listing.') }
+    finally { setBusy(false) }
+  }
+
+  const onPhotoSelected = async (file?: File) => {
+    if (!file) return
+    if (!user) { setError('Sign in before uploading a photo.'); return }
+    const extension = file.type === 'image/jpeg' ? 'jpg' : file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : ''
+    if (!extension) { setError('Choose a JPG, PNG, or WebP photo.'); return }
+    if (file.size > 5 * 1024 * 1024) { setError('Photo must be smaller than 5 MB.'); return }
+    setPhotoBusy(true); setError('')
+    try {
+      const path = `${user.id}/${crypto.randomUUID()}.${extension}`
+      const { error: uploadError } = await supabase.storage.from('listing-photos').upload(path, file, { contentType: file.type })
+      if (uploadError) throw uploadError
+      const { data } = supabase.storage.from('listing-photos').getPublicUrl(path)
+      update({ image: data.publicUrl })
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Photo upload failed.') }
+    finally { setPhotoBusy(false) }
   }
 
   if (!profile || profile.role !== 'landowner') return <section className="container-xxl py-5"><h1>Landowner onboarding</h1><p>Complete your landowner profile before creating a listing.</p><button className="btn btn-primary" onClick={() => navigate('/account?next=' + encodeURIComponent('/host/new'))}>Continue</button></section>
@@ -80,7 +105,9 @@ export function HostWizardPage() {
 
     {step === 3 && <div className="wizard-step">
       <h2>Add a photo</h2>
-      <div className="mb-3"><label className="form-label fw-semibold">Image URL</label><input className="form-control" value={draft.image} onChange={(event) => update({ image: event.target.value })} placeholder="Paste a photo link, or leave blank for a placeholder" /></div>
+      <div className="mb-3"><label className="form-label fw-semibold" htmlFor="land-photo">Upload a photo from your device</label><input id="land-photo" type="file" accept="image/jpeg,image/png,image/webp" className="form-control" disabled={photoBusy} onChange={event => void onPhotoSelected(event.target.files?.[0])} /><div className="form-text">JPG, PNG, or WebP, up to 5 MB. Photos are public after you share their link.</div></div>
+      {photoBusy && <p role="status">Uploading photo…</p>}
+      <div className="mb-3"><label className="form-label fw-semibold">Or paste a direct image URL</label><input className="form-control" value={draft.image} onChange={(event) => update({ image: event.target.value })} placeholder="https://example.com/photo.jpg" /><div className="form-text">A webpage link, such as an Unsplash photo page, will not display as an image.</div></div>
       <div className="photo-preview">{draft.image ? <img src={draft.image} alt="Preview" /> : <div className="photo-placeholder"><ImagePlus size={22} /><span>No photo yet</span></div>}</div>
       <label className="d-flex gap-2 mt-3"><input type="checkbox" checked={draft.proofDeclared} onChange={e => update({ proofDeclared: e.target.checked })} /> I have proof of ownership or the right to lease this land, and understand that admin review is required before publication.</label>
       <p className="small text-secondary mt-2">Secure document upload and deletion after review require a backend. Do not enter identity numbers or document links here.</p>
@@ -91,8 +118,9 @@ export function HostWizardPage() {
       <div style={{ maxWidth: 280 }}><ListingCard listing={preview} saved={false} onSave={() => {}} /></div>
     </div>}
 
+    {error && <div className="alert alert-danger" role="alert">{error}</div>}
     <div className="d-flex justify-content-end border-top mt-4 pt-4">{step < STEPS.length - 1
       ? <button className="btn btn-primary rounded-pill px-4" disabled={!stepValid} onClick={() => setStep(step + 1)}>Continue →</button>
-      : <button className="btn btn-primary rounded-pill px-4" disabled={!draft.proofDeclared} onClick={onPublish}>{editingId ? 'Save changes' : 'Submit listing'} →</button>}</div>
+      : <button className="btn btn-primary rounded-pill px-4" disabled={!draft.proofDeclared || busy || photoBusy} onClick={onPublish}>{busy ? 'Saving…' : editingId ? 'Save changes' : 'Submit listing'} →</button>}</div>
   </section>
 }

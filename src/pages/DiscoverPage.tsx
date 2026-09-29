@@ -9,7 +9,7 @@ import { useListings } from '../context/ListingsContext'
 const CATEGORY_ICONS: Record<string, ComponentType<{ size?: number }>> = { 'All land': Sprout, Vegetables: Carrot, Grains: Wheat, Orchards: TreeDeciduous }
 
 export function DiscoverPage() {
-  const { listings, saved, toggleSaved } = useListings()
+  const { listings, saved, toggleSaved, loading, error } = useListings()
   const [category, setCategory] = useState('All land')
   const [query, setQuery] = useState('')
   const location = useLocation()
@@ -72,7 +72,9 @@ export function DiscoverPage() {
       <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
         {visible.map((listing, index) => <div className="col" key={listing.id}><ListingCard listing={listing} saved={saved.includes(listing.id)} onSave={toggleSaved} delay={index * 60} /></div>)}
       </div>
-      {visible.length === 0 && <div className="text-center text-secondary py-5">No plots match that search yet. Try a broader crop or area.</div>}
+      {loading && <div className="text-center text-secondary py-5">Loading land listings…</div>}
+      {error && <div className="alert alert-danger" role="alert">Could not load land listings: {error}</div>}
+      {!loading && !error && visible.length === 0 && <div className="text-center text-secondary py-5">No approved plots match that search yet.</div>}
     </section>
 
     <section className="bg-dark text-white py-5" id="resources">

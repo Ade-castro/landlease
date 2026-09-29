@@ -6,12 +6,13 @@ import { useFlow } from '../context/FlowContext'
 
 export function ListingDetailPage() {
   const { id } = useParams()
-  const { getListing, saved, toggleSaved } = useListings()
+  const { getListing, saved, toggleSaved, loading } = useListings()
   const { show } = useToast()
   const { profile, start } = useFlow()
   const navigate = useNavigate()
   const listing = getListing(Number(id))
 
+  if (loading) return <section className="container-xxl py-5">Loading listing…</section>
   if (!listing) {
     return <section className="container-xxl py-5">
       <p>We couldn't find that listing — it may have been removed.</p>

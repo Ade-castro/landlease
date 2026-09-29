@@ -8,14 +8,17 @@ import { useFlow } from '../context/FlowContext'
 import { Link } from 'react-router-dom'
 
 export function HostDashboardPage() {
-  const { myListings, remove } = useListings()
+  const { myListings, remove, loading, error } = useListings()
   const { cases } = useFlow()
   const { show } = useToast()
   const navigate = useNavigate()
   const heroCopyReveal = useReveal<HTMLDivElement>()
   const heroArtReveal = useReveal<HTMLDivElement>(120)
 
-  const onRemove = (id: number) => { remove(id); show('Listing removed.') }
+  const onRemove = async (id: number) => {
+    try { await remove(id); show('Listing removed.') }
+    catch { show('Could not remove the listing. Please try again.') }
+  }
 
   return <>
     <section className="container-xxl py-5">
@@ -37,7 +40,8 @@ export function HostDashboardPage() {
         <h2 className="fw-bold mb-0">Manage your listings</h2>
         {myListings.length > 0 && <button className="btn btn-outline-dark rounded-pill d-flex align-items-center gap-2" onClick={() => navigate('/host/new')}><Plus size={16} /> List new land</button>}
       </div>
-      {myListings.length === 0
+      {error && <div className="alert alert-danger" role="alert">{error}</div>}
+      {loading ? <p>Loading listings…</p> : myListings.length === 0
         ? <div className="host-empty text-center text-secondary py-5">
           <Sprout size={26} className="text-primary mb-2" />
           <p className="mb-3">You haven't listed any land yet.</p>
@@ -51,7 +55,7 @@ export function HostDashboardPage() {
 function HostListingCard({ listing, onEdit, onRemove, delay = 0 }: { listing: Listing; onEdit: () => void; onRemove: () => void; delay?: number }) {
   const reveal = useReveal<HTMLElement>(delay)
   return <article ref={reveal.ref} className={`listing-card-ab ${reveal.className}`} style={reveal.style}>
-    <div className="listing-media"><img src={listing.image} alt={listing.name} /><span className="live-badge">{listing.verificationStatus === 'pending' ? 'Pending review' : 'Live'}</span></div>
+    <div className="listing-media"><img src={listing.image} alt={listing.name} /><span className="live-badge">{listing.verificationStatus === 'approved' ? 'Live' : listing.verificationStatus === 'rejected' ? 'Needs changes' : 'Pending review'}</span></div>
     <div className="pt-2">
       <h3 className="listing-title mb-1 text-truncate">{listing.name}</h3>
       <p className="text-secondary small mb-1 d-flex align-items-center gap-1"><MapPin size={12} /> {listing.area}</p>
