@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useFlow } from './FlowContext'
 import { supabase } from '../lib/supabase'
-import { PLACEHOLDER_IMAGE } from '../lib/data'
+import { PLACEHOLDER_IMAGE, demoListings } from '../lib/data'
 import type { Category, Listing } from '../lib/types'
 
 type ListingsContextValue = {
@@ -37,16 +37,22 @@ function fromRow(row: ListingRow): Listing {
 
 export function ListingsProvider({ children }: { children: ReactNode }) {
   const { user } = useFlow()
-  const [listings, setListings] = useState<Listing[]>([])
+  const [listings, setListings] = useState<Listing[]>(demoListings)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [saved, setSaved] = useState<number[]>([])
+  const [demoSaved, setDemoSaved] = useState<number[]>(() => {
+    try {
+      const value: unknown = JSON.parse(localStorage.getItem('landlease-demo-saved-v1') || '[]')
+      return Array.isArray(value) ? value.filter((id): id is number => typeof id === 'number' && id < 0) : []
+    } catch { return [] }
+  })
 
   const load = useCallback(async () => {
     setLoading(true)
     const { data, error: fetchError } = await supabase.from('listings').select('*').order('created_at', { ascending: false })
     if (fetchError) setError(fetchError.message)
-    else { setError(''); setListings((data as ListingRow[]).map(fromRow)) }
+    else { setError(''); setListings([...demoListings, ...(data as ListingRow[]).map(fromRow)]) }
     setLoading(false)
   }, [])
 
@@ -95,6 +101,14 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
   }
 
   const toggleSaved = async (id: number) => {
+    if (id < 0) {
+      setDemoSaved(items => {
+        const next = items.includes(id) ? items.filter(item => item !== id) : [...items, id]
+        localStorage.setItem('landlease-demo-saved-v1', JSON.stringify(next))
+        return next
+      })
+      return
+    }
     if (!user) throw new Error('Sign in to save plots.')
     if (saved.includes(id)) {
       const { error: saveError } = await supabase.from('saved_plots').delete().eq('user_id', user.id).eq('listing_id', id)
@@ -109,7 +123,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
   const myListings = useMemo(() => listings.filter(item => item.ownerId === user?.id), [listings, user?.id])
   const getListing = (id: number) => listings.find(item => item.id === id)
 
-  return <ListingsContext.Provider value={{ listings, myListings, loading, error, saved, toggleSaved, publish, remove, getListing }}>
+  return <ListingsContext.Provider value={{ listings, myListings, loading, error, saved: [...saved, ...demoSaved], toggleSaved, publish, remove, getListing }}>
     {children}
   </ListingsContext.Provider>
 }

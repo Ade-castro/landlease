@@ -17,6 +17,20 @@ export const seedListings: Listing[] = [
   { id: 14, name: 'Rusape Fruit Basket', area: 'Rusape, Manicaland', size: '2.2 hectares', price: '$230 / season', detail: '12 month lease', crop: 'Mixed orchard fruit', category: 'Orchards', image: 'https://images.unsplash.com/photo-1573246123716-6b1782bfc499?auto=format&fit=crop&w=1000&q=85', tags: ['Storage', 'Power nearby'], rating: 4.4, description: 'A mixed fruit block — citrus, avocado and pear — with a grid-power packhouse for sorting and storing the harvest.' },
 ]
 
+// Presentation data. Negative IDs keep it separate from Supabase records.
+// These photos are illustrative stock images, not photographs of the named plots.
+const demoSeed = [
+  ...seedListings.filter(item => item.category === 'Vegetables').slice(0, 5),
+  ...seedListings.filter(item => item.category === 'Grains'),
+  { ...seedListings[6], id: 15, name: 'Demo Grain Field', crop: 'Mixed grains', image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=85' },
+  ...seedListings.filter(item => item.category === 'Orchards'),
+  { ...seedListings[8], id: 16, name: 'Demo Fruit Orchard', crop: 'Mixed fruit', image: 'https://images.unsplash.com/photo-1470252649378-9c29740c9fa8?auto=format&fit=crop&w=1000&q=85' },
+]
+export const demoListings: Listing[] = demoSeed.map((item, index) => ({
+  ...item, id: -(index + 1), verificationStatus: 'demo', featured: false, rating: undefined,
+  description: 'DEMO EXAMPLE: The location, price, and details are fictional. The photo is illustrative stock photography. This plot is not available to lease.',
+}))
+
 export const categories: ('All land' | Category)[] = ['All land', 'Vegetables', 'Grains', 'Orchards']
 export const TAG_OPTIONS = ['Borehole', 'Fenced', 'Irrigation', 'Storage', 'Shed', 'Power nearby', 'River access', 'Tilled']
 export const STEPS = ['Location & boundaries', 'Land history & amenities', 'Price & term', 'Photos & verification', 'Review']

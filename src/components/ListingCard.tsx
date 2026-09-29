@@ -9,7 +9,7 @@ export function ListingCard({ listing, saved, onSave, delay = 0 }: { listing: Li
     <Link to={`/listing/${listing.id}`} className="listing-media">
       <img src={listing.image} alt={listing.name} />
       <button className={saved ? 'wishlist-btn saved' : 'wishlist-btn'} onClick={(event) => { event.preventDefault(); onSave(listing.id) }} aria-label="Save listing"><Heart size={20} fill={saved ? 'currentColor' : 'none'} /></button>
-      {listing.featured && <span className="badge-guest">Guest favourite</span>}
+      {listing.verificationStatus === 'demo' ? <span className="badge-guest">DEMO · Not available</span> : listing.featured && <span className="badge-guest">Guest favourite</span>}
     </Link>
     <div className="pt-2">
       <div className="d-flex justify-content-between align-items-start gap-2">

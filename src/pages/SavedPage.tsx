@@ -9,14 +9,14 @@ export function SavedPage() {
   const { listings, saved, toggleSaved } = useListings()
   const { user } = useFlow()
   const { show } = useToast()
-  const savedListings = listings.filter((item) => saved.includes(item.id) && item.verificationStatus === 'approved')
+  const savedListings = listings.filter((item) => saved.includes(item.id) && (item.verificationStatus === 'approved' || item.verificationStatus === 'demo'))
   const removeSaved = async (id: number) => {
     try { await toggleSaved(id) } catch (cause) { show(cause instanceof Error ? cause.message : 'Could not update saved plots.') }
   }
 
   return <section className="container-xxl py-5">
     <h1 className="fw-bold mb-4">Saved plots</h1>
-    {!user && <p><Link to="/account?next=%2Fsaved">Sign in</Link> to save plots across your devices.</p>}
+    {!user && <p>Demo saves stay in this browser. <Link to="/account?next=%2Fsaved">Sign in</Link> to save approved real plots across your devices.</p>}
     {savedListings.length === 0
       ? <div className="host-empty text-center text-secondary py-5">
         <Heart size={26} className="text-primary mb-2" />

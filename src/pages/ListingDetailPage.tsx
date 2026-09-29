@@ -22,17 +22,18 @@ export function ListingDetailPage() {
 
   const isSaved = saved.includes(listing.id)
   const save = async () => {
-    if (!user) { navigate('/account?next=' + encodeURIComponent('/listing/' + listing.id)); return }
+    if (!user && listing.verificationStatus !== 'demo') { navigate('/account?next=' + encodeURIComponent('/listing/' + listing.id)); return }
     try { await toggleSaved(listing.id); show(isSaved ? 'Removed from saved.' : 'Saved to your list.') }
     catch (cause) { show(cause instanceof Error ? cause.message : 'Could not update saved plots.') }
   }
   return <section className="container-xxl py-4 py-lg-5">
+    {listing.verificationStatus === 'demo' && <div className="alert alert-warning">DEMO EXAMPLE · Fictional plot and price. Stock photo for illustration. This land is not available for visits or leasing.</div>}
     <Link className="d-inline-flex align-items-center gap-2 fw-semibold text-dark mb-4" to="/discover"><ArrowLeft size={15} /> Back to Discover land</Link>
     <div className="row g-4 g-lg-5">
       <div className="col-lg-8">
         <div className="detail-media mb-4">
           <img src={listing.image} alt={listing.name} />
-          {listing.featured && <span className="badge-guest">Guest favourite</span>}
+          {listing.verificationStatus === 'demo' ? <span className="badge-guest">DEMO · Not available</span> : listing.featured && <span className="badge-guest">Guest favourite</span>}
         </div>
         <div className="d-flex justify-content-between align-items-start gap-3">
           <div>
@@ -53,10 +54,10 @@ export function ListingDetailPage() {
         <div className="detail-card border p-4">
           <strong className="fs-3">{listing.price}</strong>
           <div className="text-secondary small mb-3">{listing.detail}</div>
-          {listing.verificationStatus === 'approved' && <button className={isSaved ? 'btn btn-dark rounded-pill w-100 mb-2 d-flex align-items-center justify-content-center gap-2' : 'btn btn-outline-dark rounded-pill w-100 mb-2 d-flex align-items-center justify-content-center gap-2'} onClick={() => void save()}><Heart size={15} fill={isSaved ? 'currentColor' : 'none'} /> {isSaved ? 'Saved' : 'Save this plot'}</button>}
+          {(listing.verificationStatus === 'approved' || listing.verificationStatus === 'demo') && <button className={isSaved ? 'btn btn-dark rounded-pill w-100 mb-2 d-flex align-items-center justify-content-center gap-2' : 'btn btn-outline-dark rounded-pill w-100 mb-2 d-flex align-items-center justify-content-center gap-2'} onClick={() => void save()}><Heart size={15} fill={isSaved ? 'currentColor' : 'none'} /> {isSaved ? 'Saved' : 'Save this plot'}</button>}
           {listing.verificationStatus === 'approved' && <button className="btn btn-primary rounded-pill w-100" onClick={() => { if (!profile) navigate('/account?next=' + encodeURIComponent('/listing/' + listing.id + '/visit')); else navigate('/listing/' + listing.id + '/visit') }}>Request farm visit</button>}
           <div className="border-top mt-3 pt-3 d-flex flex-column gap-2 small fw-semibold text-success">
-            <span className="d-flex align-items-center gap-2"><ShieldCheck size={14} /> {listing.verificationStatus === 'approved' ? 'Verification approved' : 'Verification has not been confirmed'}</span>
+            <span className="d-flex align-items-center gap-2"><ShieldCheck size={14} /> {listing.verificationStatus === 'approved' ? 'Verification approved' : listing.verificationStatus === 'demo' ? 'Demo only · Not verified or available' : 'Verification has not been confirmed'}</span>
           </div>
         </div>
       </aside>

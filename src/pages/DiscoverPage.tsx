@@ -20,7 +20,7 @@ export function DiscoverPage() {
   const { user } = useFlow()
   const { show } = useToast()
   const save = async (id: number) => {
-    if (!user) { navigate('/account?next=' + encodeURIComponent('/listing/' + id)); return }
+    if (!user && id > 0) { navigate('/account?next=' + encodeURIComponent('/listing/' + id)); return }
     try { await toggleSaved(id) } catch (cause) { show(cause instanceof Error ? cause.message : 'Could not save plot.') }
   }
 
@@ -30,7 +30,7 @@ export function DiscoverPage() {
   }, [location.hash])
 
   const visible = useMemo(() => listings.filter((item) => {
-    if (item.verificationStatus !== 'approved') return false
+    if (item.verificationStatus !== 'approved' && item.verificationStatus !== 'demo') return false
     const text = `${item.name} ${item.area} ${item.crop}`.toLowerCase()
     const queryMatch = text.includes(query.toLowerCase())
     const categoryMatch = category === 'All land' || item.category === category
@@ -75,6 +75,7 @@ export function DiscoverPage() {
     </section>
 
     <section className="container-xxl py-5">
+      <div className="alert alert-warning">Demo listings are fictional examples with illustrative photos. They cannot be booked or leased. Approved real listings will appear alongside them.</div>
       <div className="d-flex align-items-baseline justify-content-between mb-4">
         <h2 className="fw-bold mb-0">Land ready to grow on</h2>
         <span className="text-secondary small">{visible.length} of {listings.length} listings</span>
