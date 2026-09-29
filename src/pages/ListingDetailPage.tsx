@@ -8,7 +8,7 @@ export function ListingDetailPage() {
   const { id } = useParams()
   const { getListing, saved, toggleSaved, loading } = useListings()
   const { show } = useToast()
-  const { profile, start } = useFlow()
+  const { profile } = useFlow()
   const navigate = useNavigate()
   const listing = getListing(Number(id))
 
@@ -49,7 +49,7 @@ export function ListingDetailPage() {
           <strong className="fs-3">{listing.price}</strong>
           <div className="text-secondary small mb-3">{listing.detail}</div>
           <button className={isSaved ? 'btn btn-dark rounded-pill w-100 mb-2 d-flex align-items-center justify-content-center gap-2' : 'btn btn-outline-dark rounded-pill w-100 mb-2 d-flex align-items-center justify-content-center gap-2'} onClick={() => { toggleSaved(listing.id); show(isSaved ? 'Removed from saved.' : 'Saved to your list.') }}><Heart size={15} fill={isSaved ? 'currentColor' : 'none'} /> {isSaved ? 'Saved' : 'Save this plot'}</button>
-          <button className="btn btn-primary rounded-pill w-100" onClick={() => { if (!profile) navigate('/account?next=' + encodeURIComponent('/listing/' + listing.id)); else navigate('/lease/' + start(listing.id)) }}>Request visit or propose lease</button>
+          <button className="btn btn-primary rounded-pill w-100" onClick={() => { if (!profile) navigate('/account?next=' + encodeURIComponent('/listing/' + listing.id + '/visit')); else navigate('/listing/' + listing.id + '/visit') }}>Request farm visit</button>
           <div className="border-top mt-3 pt-3 d-flex flex-column gap-2 small fw-semibold text-success">
             <span className="d-flex align-items-center gap-2"><ShieldCheck size={14} /> {listing.verificationStatus === 'approved' ? 'Verification approved' : 'Verification has not been confirmed'}</span>
           </div>

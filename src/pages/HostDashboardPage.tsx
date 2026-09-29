@@ -1,15 +1,18 @@
 import { MapPin, Pencil, Plus, Sprout, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useReveal } from '../hooks/useReveal'
 import { useListings } from '../context/ListingsContext'
 import { useToast } from '../context/ToastContext'
 import type { Listing } from '../lib/types'
-import { useFlow } from '../context/FlowContext'
-import { Link } from 'react-router-dom'
+import { useVisits } from '../hooks/useVisits'
+import { supabase } from '../lib/supabase'
 
 export function HostDashboardPage() {
   const { myListings, remove, loading, error } = useListings()
-  const { cases } = useFlow()
+  const { visits, error: visitsError, reload } = useVisits()
+  const [alternate, setAlternate] = useState<Record<number, string>>({})
+  const [responding, setResponding] = useState<number | null>(null)
   const { show } = useToast()
   const navigate = useNavigate()
   const heroCopyReveal = useReveal<HTMLDivElement>()
@@ -19,6 +22,19 @@ export function HostDashboardPage() {
     try { await remove(id); show('Listing removed.') }
     catch { show('Could not remove the listing. Please try again.') }
   }
+
+  const respond = async (id: number, action: 'confirm' | 'decline' | 'propose') => {
+    setResponding(id)
+    try {
+      const p_date = action === 'propose' && alternate[id] ? new Date(alternate[id]).toISOString() : null
+      const { error } = await supabase.rpc('respond_farm_visit', { p_id: id, p_action: action, p_date })
+      if (error) throw error
+      await reload()
+      show('Visit request updated.')
+    } catch (cause) { show(cause instanceof Error ? cause.message : 'Could not update the visit.') }
+    finally { setResponding(null) }
+  }
+  const incoming = visits.filter(visit => myListings.some(listing => listing.id === visit.listing_id))
 
   return <>
     <section className="container-xxl py-5">
@@ -35,7 +51,20 @@ export function HostDashboardPage() {
       </div>
     </section>
     <section className="container-xxl pb-5">
-      <div className="mb-4"><h2 className="h4">Visit and lease requests</h2>{cases.filter(c => myListings.some(l => l.id === c.listingId)).length === 0 ? <p className="text-secondary">No requests yet.</p> : cases.filter(c => myListings.some(l => l.id === c.listingId)).map(c => <p key={c.id}><Link to={'/lease/' + c.id}>Request #{c.id}</Link> · {c.visitStatus} · {c.status}</p>)}</div>
+      <div className="mb-4"><h2 className="h4">Farm visit requests</h2>
+        {visitsError && <div className="alert alert-danger" role="alert">{visitsError}</div>}
+        {incoming.length === 0 ? <p className="text-secondary">No requests yet.</p> : incoming.map(visit => <div key={visit.id} className="card p-3 mb-2">
+          <strong>{myListings.find(listing => listing.id === visit.listing_id)?.name}</strong>
+          <span className="small">Request #{visit.id} · {visit.status} · {new Date(visit.requested_at).toLocaleString()}</span>
+          {visit.proposed_at && <span className="small">Suggested time: {new Date(visit.proposed_at).toLocaleString()}</span>}
+          {visit.status === 'requested' && <div className="d-flex gap-2 flex-wrap mt-2">
+            <button className="btn btn-primary btn-sm" disabled={responding === visit.id} onClick={() => void respond(visit.id, 'confirm')}>Confirm</button>
+            <button className="btn btn-outline-secondary btn-sm" disabled={responding === visit.id} onClick={() => void respond(visit.id, 'decline')}>Decline</button>
+            <input type="datetime-local" aria-label="Suggest another date and time" className="form-control form-control-sm" style={{ maxWidth: 230 }} value={alternate[visit.id] || ''} onChange={event => setAlternate(values => ({ ...values, [visit.id]: event.target.value }))} />
+            <button className="btn btn-outline-primary btn-sm" disabled={responding === visit.id || !alternate[visit.id]} onClick={() => void respond(visit.id, 'propose')}>Suggest time</button>
+          </div>}
+        </div>)}
+      </div>
       <div className="d-flex align-items-baseline justify-content-between mb-4">
         <h2 className="fw-bold mb-0">Manage your listings</h2>
         {myListings.length > 0 && <button className="btn btn-outline-dark rounded-pill d-flex align-items-center gap-2" onClick={() => navigate('/host/new')}><Plus size={16} /> List new land</button>}

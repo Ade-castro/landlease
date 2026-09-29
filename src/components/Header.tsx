@@ -8,7 +8,7 @@ export function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const { show } = useToast()
-  const { profile, logout, cases } = useFlow()
+  const { profile, logout } = useFlow()
   const isHost = location.pathname.startsWith('/host')
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -57,11 +57,10 @@ export function Header() {
           {openPanel === 'profile' && <div className="dropdown-panel dropdown-panel-end">
             <button className="dropdown-item" onClick={() => navigate('/saved')}><Heart size={16} /> Saved plots</button>
             <button className="dropdown-item" onClick={() => navigate('/account')}>{profile ? 'Edit profile' : 'Create profile'}</button>
-            {profile?.role === 'tenant' && cases.filter(c => c.tenant === profile.email).map(c => <button key={c.id} className="dropdown-item" onClick={() => navigate('/lease/' + c.id)}>My lease request #{c.id}</button>)}
             <button className="dropdown-item" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
             <button className="dropdown-item" onClick={() => navigate('/discover#resources')}><HelpCircle size={16} /> Help centre</button>
             <hr className="my-2" />
-            <button className="dropdown-item" onClick={() => { setOpenPanel('none'); if (profile) { logout(); navigate('/discover'); show('Local profile cleared.') } else navigate('/account') }}><LogOut size={16} /> {profile ? 'Leave profile' : 'Get started'}</button>
+            <button className="dropdown-item" onClick={async () => { setOpenPanel('none'); if (profile) { try { await logout(); navigate('/discover'); show('Signed out.') } catch { show('Could not sign out. Please try again.') } } else navigate('/account') }}><LogOut size={16} /> {profile ? 'Sign out' : 'Get started'}</button>
           </div>}
         </div>
 
