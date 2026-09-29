@@ -6,6 +6,7 @@ import { useVisits } from '../hooks/useVisits'
 import { supabase } from '../lib/supabase'
 import { NegotiationMessages } from '../components/NegotiationMessages'
 import { WitnessNominations } from '../components/WitnessNominations'
+import { LeaseAgreementReview } from '../components/LeaseAgreementReview'
 
 type Negotiation = {
   id: number; visit_id: number; owner_id: string; tenant_id: string
@@ -91,6 +92,7 @@ export function NegotiationPage() {
     {!owner && !record && <p>The landowner has not sent lease terms yet.</p>}
     {record?.status === 'accepted' && <p className="alert alert-success mt-3">Both parties can now prepare a contract and witnesses. Signing is not available yet.</p>}
     {record?.status === 'accepted' && <WitnessNominations negotiationId={record.id} ownerId={record.owner_id} />}
+    {record?.status === 'accepted' && <LeaseAgreementReview negotiationId={record.id} terms={record.terms} />}
     {record && <NegotiationMessages negotiationId={record.id} />}
     {error && <div className="alert alert-danger mt-3" role="alert">{error}</div>}
   </section>
