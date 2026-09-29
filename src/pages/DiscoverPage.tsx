@@ -1,10 +1,13 @@
 import { Carrot, ChevronDown, Search, Sprout, TreeDeciduous, Wheat } from 'lucide-react'
 import { useEffect, useMemo, useState, type ComponentType } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { ListingCard } from '../components/ListingCard'
 import { useReveal } from '../hooks/useReveal'
 import { categories } from '../lib/data'
 import { useListings } from '../context/ListingsContext'
+import { useFlow } from '../context/FlowContext'
+import { useToast } from '../context/ToastContext'
 
 const CATEGORY_ICONS: Record<string, ComponentType<{ size?: number }>> = { 'All land': Sprout, Vegetables: Carrot, Grains: Wheat, Orchards: TreeDeciduous }
 
@@ -13,6 +16,13 @@ export function DiscoverPage() {
   const [category, setCategory] = useState('All land')
   const [query, setQuery] = useState('')
   const location = useLocation()
+  const navigate = useNavigate()
+  const { user } = useFlow()
+  const { show } = useToast()
+  const save = async (id: number) => {
+    if (!user) { navigate('/account?next=' + encodeURIComponent('/listing/' + id)); return }
+    try { await toggleSaved(id) } catch (cause) { show(cause instanceof Error ? cause.message : 'Could not save plot.') }
+  }
 
   useEffect(() => {
     if (!location.hash) return
@@ -20,7 +30,7 @@ export function DiscoverPage() {
   }, [location.hash])
 
   const visible = useMemo(() => listings.filter((item) => {
-    if (item.verificationStatus === 'pending') return false
+    if (item.verificationStatus !== 'approved') return false
     const text = `${item.name} ${item.area} ${item.crop}`.toLowerCase()
     const queryMatch = text.includes(query.toLowerCase())
     const categoryMatch = category === 'All land' || item.category === category
@@ -70,7 +80,7 @@ export function DiscoverPage() {
         <span className="text-secondary small">{visible.length} of {listings.length} listings</span>
       </div>
       <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
-        {visible.map((listing, index) => <div className="col" key={listing.id}><ListingCard listing={listing} saved={saved.includes(listing.id)} onSave={toggleSaved} delay={index * 60} /></div>)}
+        {visible.map((listing, index) => <div className="col" key={listing.id}><ListingCard listing={listing} saved={saved.includes(listing.id)} onSave={id => { void save(id) }} delay={index * 60} /></div>)}
       </div>
       {loading && <div className="text-center text-secondary py-5">Loading land listings…</div>}
       {error && <div className="alert alert-danger" role="alert">Could not load land listings: {error}</div>}

@@ -10,7 +10,7 @@ type ListingsContextValue = {
   loading: boolean
   error: string
   saved: number[]
-  toggleSaved: (id: number) => void
+  toggleSaved: (id: number) => Promise<void>
   publish: (listing: Listing, editingId: number | null) => Promise<void>
   remove: (id: number) => Promise<void>
   getListing: (id: number) => Listing | undefined
@@ -51,6 +51,19 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
   }, [])
 
   useEffect(() => { void load() }, [load, user?.id])
+  useEffect(() => {
+    let active = true
+    setSaved([])
+    if (user) {
+      void supabase.from('saved_plots').select('listing_id').eq('user_id', user.id)
+        .then(({ data, error: savedError }) => {
+          if (!active) return
+          if (savedError) setError(savedError.message)
+          else setSaved((data || []).map(row => row.listing_id))
+        })
+    }
+    return () => { active = false }
+  }, [user?.id])
 
   const publish = async (listing: Listing, editingId: number | null) => {
     if (!user) throw new Error('Sign in to list land.')
@@ -81,7 +94,18 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
     await load()
   }
 
-  const toggleSaved = (id: number) => setSaved(items => items.includes(id) ? items.filter(item => item !== id) : [...items, id])
+  const toggleSaved = async (id: number) => {
+    if (!user) throw new Error('Sign in to save plots.')
+    if (saved.includes(id)) {
+      const { error: saveError } = await supabase.from('saved_plots').delete().eq('user_id', user.id).eq('listing_id', id)
+      if (saveError) throw saveError
+      setSaved(items => items.filter(item => item !== id))
+    } else {
+      const { error: saveError } = await supabase.from('saved_plots').insert({ user_id: user.id, listing_id: id })
+      if (saveError) throw saveError
+      setSaved(items => [...items, id])
+    }
+  }
   const myListings = useMemo(() => listings.filter(item => item.ownerId === user?.id), [listings, user?.id])
   const getListing = (id: number) => listings.find(item => item.id === id)
 
