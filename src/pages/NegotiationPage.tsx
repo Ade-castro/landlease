@@ -6,6 +6,7 @@ import { useVisits } from '../hooks/useVisits'
 import { supabase } from '../lib/supabase'
 import { NegotiationMessages } from '../components/NegotiationMessages'
 import { WitnessNominations } from '../components/WitnessNominations'
+import { ContractPanel } from '../platform/ContractPanel'
 import { LeaseAgreementReview } from '../components/LeaseAgreementReview'
 
 type Negotiation = {
@@ -90,9 +91,10 @@ export function NegotiationPage() {
       <button className="btn btn-outline-primary align-self-start" disabled={busy || message.trim().length < 10} onClick={() => void respond('counter')}>Request changes</button>
     </div>}
     {!owner && !record && <p>The landowner has not sent lease terms yet.</p>}
-    {record?.status === 'accepted' && <p className="alert alert-success mt-3">Both parties can now prepare a contract and witnesses. Signing is not available yet.</p>}
+    {record?.status === 'accepted' && <p className="alert alert-success mt-3">Terms accepted. Complete both identity reviews, nominate witnesses and prepare an agreement.</p>}
     {record?.status === 'accepted' && <WitnessNominations negotiationId={record.id} ownerId={record.owner_id} />}
     {record?.status === 'accepted' && <LeaseAgreementReview negotiationId={record.id} terms={record.terms} />}
+    {record?.status === 'accepted' && <ContractPanel negotiationId={record.id} owner={owner} listingName={listing.name} />}
     {record && <NegotiationMessages negotiationId={record.id} />}
     {error && <div className="alert alert-danger mt-3" role="alert">{error}</div>}
   </section>

@@ -50,8 +50,9 @@ export function AdminReviewPage() {
 
   return <section className="container-xxl py-5" style={{ maxWidth: 900 }}>
     <h1 className="h2">Listing review</h1>
+    <Link to="/workspace?tab=admin" className="btn btn-outline-primary mb-3">Identity, land rights and soil-test review</Link>
     {loading || authLoading ? <p>Loading…</p> : !user ? <p>Sign in to review listings. <Link to="/account">Sign in</Link></p> : !allowed ? <p>This page is for Landlease administrators.</p> : <>
-      <p className="text-secondary">Check the landowner’s identity, ownership or permission, plot details, and actual photos before approving a public listing.</p>
+      <p className="text-secondary">Complete identity and land-right review and record a real laboratory report in Admin operations before approving a public listing. Check actual photos and required permissions.</p>
       {items.length === 0 && <p>No listings awaiting review.</p>}
       {items.map(item => <article key={item.id} className="card p-3 mb-3">
         {item.image && <img src={item.image} alt={item.name} style={{ maxHeight: 280, objectFit: 'cover' }} className="rounded mb-3" />}

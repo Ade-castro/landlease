@@ -1,9 +1,10 @@
-import { Bell, BellOff, Heart, HelpCircle, LogOut, Menu, X } from 'lucide-react'
+import { Bell, Heart, HelpCircle, LogOut, Menu, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
 import { useFlow } from '../context/FlowContext'
 import { supabase } from '../lib/supabase'
+import { NotificationList } from '../platform/NotificationList'
 
 export function Header() {
   const location = useLocation()
@@ -41,7 +42,7 @@ export function Header() {
     return () => { document.removeEventListener('mousedown', onClick); document.removeEventListener('keydown', onKey) }
   }, [openPanel])
 
-  const guestLinks = <><Link className={location.pathname === '/discover' || location.pathname === '/' ? 'active' : ''} to="/discover">Discover land</Link><Link to="/negotiation-preview">Negotiation demo</Link><Link to="/discover#how-it-works">How it works</Link><Link to="/discover#resources">Farm resources</Link></>
+  const guestLinks = <><Link className={location.pathname === '/discover' || location.pathname === '/' ? 'active' : ''} to="/discover">Discover land</Link><Link to="/demo">Presentation demo</Link><Link to="/discover#how-it-works">How it works</Link><Link to="/directory">Inputs and equipment</Link></>
   const hostLinks = <Link className="active" to="/host">Your listings</Link>
 
   return <header className={scrolled ? 'landlease-navbar scrolled bg-white sticky-top border-bottom py-3 position-relative' : 'landlease-navbar bg-white sticky-top border-bottom py-3 position-relative'}>
@@ -54,11 +55,7 @@ export function Header() {
         <div className="position-relative d-none d-sm-block">
           <button className="icon-btn" aria-label="Notifications" aria-expanded={openPanel === 'bell'} onClick={() => setOpenPanel(openPanel === 'bell' ? 'none' : 'bell')}><Bell size={18} />{openPanel !== 'bell' && <span className="notification-dot" />}</button>
           {openPanel === 'bell' && <div className="dropdown-panel dropdown-panel-end">
-            <p className="fw-bold mb-3">Notifications</p>
-            <div className="text-center text-secondary py-3">
-              <BellOff size={22} className="mb-2" />
-              <p className="small mb-0">You're all caught up — no new notifications.</p>
-            </div>
+            <NotificationList />
           </div>}
         </div>
 
@@ -67,8 +64,9 @@ export function Header() {
           {openPanel === 'profile' && <div className="dropdown-panel dropdown-panel-end">
             <button className="dropdown-item" onClick={() => navigate('/saved')}><Heart size={16} /> Saved plots</button>
             {profile?.role === 'tenant' && <button className="dropdown-item" onClick={() => navigate('/my-visits')}>My farm visits</button>}
-            <button className="dropdown-item" onClick={() => navigate('/negotiation-preview')}>Negotiation demo</button>
-            {isAdmin && <button className="dropdown-item" onClick={() => navigate('/admin/review')}>Review listings (admin)</button>}
+            <button className="dropdown-item" onClick={() => navigate('/demo')}>Presentation demo</button>
+            <button className="dropdown-item" onClick={() => navigate('/workspace')}>My workspace</button>
+            {isAdmin && <button className="dropdown-item" onClick={() => navigate('/workspace?tab=admin')}>Admin operations</button>}
             <button className="dropdown-item" onClick={() => navigate('/account')}>{profile ? 'Edit profile' : 'Create profile'}</button>
             <button className="dropdown-item" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
             <button className="dropdown-item" onClick={() => navigate('/discover#resources')}><HelpCircle size={16} /> Help centre</button>

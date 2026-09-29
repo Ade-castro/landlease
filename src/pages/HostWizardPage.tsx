@@ -8,6 +8,7 @@ import { categories, emptyDraft, listingToDraft, PLACEHOLDER_IMAGE, STEPS, TAG_O
 import type { Category, Draft } from '../lib/types'
 import { useFlow } from '../context/FlowContext'
 import { supabase } from '../lib/supabase'
+import { BoundaryMap } from '../platform/BoundaryMap'
 
 const CATEGORY_OPTIONS = categories.filter((item): item is Category => item !== 'All land')
 
@@ -79,7 +80,8 @@ export function HostWizardPage() {
       <div className="mb-3"><label className="form-label fw-semibold">Land name</label><input className="form-control" value={draft.name} onChange={(event) => update({ name: event.target.value })} placeholder="e.g. Mbare Greenbelt Plot" /></div>
       <div className="mb-3"><label className="form-label fw-semibold">Area / region</label><input className="form-control" value={draft.area} onChange={(event) => update({ area: event.target.value })} placeholder="e.g. Harare South, Harare" /></div>
       <div className="mb-3"><label className="form-label fw-semibold">Size</label><input className="form-control" value={draft.size} onChange={(event) => update({ size: event.target.value })} placeholder="e.g. 2.4 hectares" /></div>
-      <div className="mb-3"><label className="form-label fw-semibold">Land boundary / map reference</label><textarea className="form-control" value={draft.boundary} onChange={e => update({ boundary: e.target.value })} placeholder="GPS coordinates or description of plot boundaries" /><div className="form-text">Map polygon drawing needs a mapping service.</div></div>
+      <div className="mb-3"><label className="form-label fw-semibold">Land boundary / map reference</label><textarea className="form-control" value={draft.boundary} onChange={e => update({ boundary: e.target.value })} placeholder="GPS coordinates or description of plot boundaries" /><div className="form-text">Draw corners below to save a GeoJSON boundary, or enter an existing map reference.</div></div>
+      <BoundaryMap value={draft.boundary} onChange={boundary => update({ boundary })} />
     </div>}
 
     {step === 1 && <div className="wizard-step">
@@ -110,7 +112,7 @@ export function HostWizardPage() {
       <div className="mb-3"><label className="form-label fw-semibold">Or paste a direct image URL</label><input className="form-control" value={draft.image} onChange={(event) => update({ image: event.target.value })} placeholder="https://example.com/photo.jpg" /><div className="form-text">A webpage link, such as an Unsplash photo page, will not display as an image.</div></div>
       <div className="photo-preview">{draft.image ? <img src={draft.image} alt="Preview" /> : <div className="photo-placeholder"><ImagePlus size={22} /><span>No photo yet</span></div>}</div>
       <label className="d-flex gap-2 mt-3"><input type="checkbox" checked={draft.proofDeclared} onChange={e => update({ proofDeclared: e.target.checked })} /> I have proof of ownership or the right to lease this land, and understand that admin review is required before publication.</label>
-      <p className="small text-secondary mt-2">Secure document upload and deletion after review require a backend. Do not enter identity numbers or document links here.</p>
+      <p className="small text-secondary mt-2">After submitting this plot, open My workspace → Verification to upload identity and land-right documents privately. Request a laboratory soil test in the Soil tests tab.</p>
     </div>}
 
     {step === 4 && <div className="wizard-step">

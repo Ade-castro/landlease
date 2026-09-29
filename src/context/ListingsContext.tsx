@@ -21,7 +21,7 @@ type ListingRow = {
   id: number; owner_id: string; name: string; area: string; size: string
   crop: string; category: Category; tags: string[]; price: string; detail: string
   image: string; description: string; history: string; soil: string; boundary: string
-  proof_declared: boolean; verification_status: 'pending' | 'approved' | 'rejected'
+  soil_reports?: { summary: string } | null; proof_declared: boolean; verification_status: 'pending' | 'approved' | 'rejected'
 }
 
 function fromRow(row: ListingRow): Listing {
@@ -29,7 +29,7 @@ function fromRow(row: ListingRow): Listing {
     id: row.id, ownerId: row.owner_id, name: row.name, area: row.area,
     size: row.size, crop: row.crop, category: row.category, tags: row.tags,
     price: row.price, detail: row.detail, image: row.image || PLACEHOLDER_IMAGE,
-    description: row.description, history: row.history, soil: row.soil,
+    description: row.description, history: row.history, soil: row.soil_reports?.summary || row.soil,
     boundary: row.boundary, proofDeclared: row.proof_declared,
     verificationStatus: row.verification_status,
   }
@@ -50,7 +50,7 @@ export function ListingsProvider({ children }: { children: ReactNode }) {
 
   const load = useCallback(async () => {
     setLoading(true)
-    const { data, error: fetchError } = await supabase.from('listings').select('*').order('created_at', { ascending: false })
+    const { data, error: fetchError } = await supabase.from('listings').select('*,soil_reports(summary)').order('created_at', { ascending: false })
     if (fetchError) setError(fetchError.message)
     else { setError(''); setListings([...demoListings, ...(data as ListingRow[]).map(fromRow)]) }
     setLoading(false)

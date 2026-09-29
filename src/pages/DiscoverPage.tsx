@@ -15,6 +15,11 @@ export function DiscoverPage() {
   const { listings, saved, toggleSaved, loading, error } = useListings()
   const [category, setCategory] = useState('All land')
   const [query, setQuery] = useState('')
+  const [area, setArea] = useState('')
+  const [minSize, setMinSize] = useState('')
+  const [maxPrice, setMaxPrice] = useState('')
+  const [amenity, setAmenity] = useState('')
+  const [soil, setSoil] = useState('')
   const location = useLocation()
   const navigate = useNavigate()
   const { user } = useFlow()
@@ -34,8 +39,8 @@ export function DiscoverPage() {
     const text = `${item.name} ${item.area} ${item.crop}`.toLowerCase()
     const queryMatch = text.includes(query.toLowerCase())
     const categoryMatch = category === 'All land' || item.category === category
-    return queryMatch && categoryMatch
-  }), [category, query, listings])
+    return queryMatch && categoryMatch && item.area.toLowerCase().includes(area.toLowerCase()) && (!minSize || parseFloat(item.size) >= Number(minSize)) && (!maxPrice || parseFloat(item.price.replace(/[^0-9.]/g, '')) <= Number(maxPrice)) && (!amenity || item.tags.includes(amenity)) && (!soil || (item.soil || '').toLowerCase().includes(soil.toLowerCase()))
+  }), [category, query, listings, area, minSize, maxPrice, amenity, soil])
 
   const heroCopyReveal = useReveal<HTMLDivElement>()
   const heroArtReveal = useReveal<HTMLDivElement>(120)
@@ -58,12 +63,14 @@ export function DiscoverPage() {
 
     <section className="container-xxl pb-4" aria-label="Search farmland">
       <div className="search-pill">
-        <button className="search-segment d-none d-sm-block"><span className="segment-label">Where</span><span className="segment-value d-flex align-items-center gap-1">Harare &amp; surrounds <ChevronDown size={13} /></span></button>
+        <button className="search-segment d-none d-sm-block"><span className="segment-label">Where</span><span className="segment-value d-flex align-items-center gap-1">Across Zimbabwe <ChevronDown size={13} /></span></button>
         <span className="search-divider d-none d-sm-block" />
         <div className="search-segment"><label className="segment-label" htmlFor="crop-search">Growing</label><input id="crop-search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Crop, land name or area" /></div>
         <button className="search-submit" aria-label="Search"><Search size={18} /></button>
       </div>
     </section>
+
+    <section className="container-xxl pb-4" aria-label="Additional plot filters"><div className="row g-2"><label className="col-md-3">Location<input className="form-control" value={area} onChange={e => setArea(e.target.value)} placeholder="Town or province" /></label><label className="col-md-2">Minimum hectares<input type="number" min={0} step="0.1" className="form-control" value={minSize} onChange={e => setMinSize(e.target.value)} /></label><label className="col-md-2">Max advertised USD<input type="number" min={0} className="form-control" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} /></label><label className="col-md-3">Amenity<select className="form-select" value={amenity} onChange={e => setAmenity(e.target.value)}><option value="">Any amenity</option>{['Borehole','Fenced','Irrigation','Storage','Shed','Power nearby','River access','Tilled'].map(t => <option key={t}>{t}</option>)}</select></label><label className="col-md-2">Soil keyword<input className="form-control" value={soil} onChange={e => setSoil(e.target.value)} placeholder="Reported soil" /></label></div><p className="small text-secondary mt-2 mb-0">Prices use each listing’s advertised month or season unit; check the term before comparing.</p></section>
 
     <section className="container-xxl border-bottom pb-1">
       <div className="category-bar d-flex gap-4 overflow-auto">
@@ -78,7 +85,7 @@ export function DiscoverPage() {
       <div className="alert alert-warning">Demo listings are fictional examples with illustrative photos. They cannot be booked or leased. Approved real listings will appear alongside them.</div>
       <div className="d-flex align-items-baseline justify-content-between mb-4">
         <h2 className="fw-bold mb-0">Land ready to grow on</h2>
-        <span className="text-secondary small">{visible.length} of {listings.length} listings</span>
+        <span className="text-secondary small">{visible.length} plots shown</span>
       </div>
       <div className="row row-cols-2 row-cols-md-3 row-cols-lg-4 g-4">
         {visible.map((listing, index) => <div className="col" key={listing.id}><ListingCard listing={listing} saved={saved.includes(listing.id)} onSave={id => { void save(id) }} delay={index * 60} /></div>)}
@@ -93,7 +100,7 @@ export function DiscoverPage() {
         <p className="text-uppercase small fw-bold mb-2" style={{ letterSpacing: '.12em', color: '#d9ef87' }}>From lease to harvest</p>
         <h2 id="how-it-works" className="fw-bold display-6 mb-3">More than land. A head start.</h2>
         <p className="text-white-50 mb-4" style={{ maxWidth: 480 }}>Know what to plant, when to plant it, and where to find what you need. Your farm plan starts the moment you find your field.</p>
-        <button className="btn btn-light rounded-pill fw-semibold">Explore farm planning →</button>
+        <button className="btn btn-light rounded-pill fw-semibold" onClick={() => navigate(user ? "/workspace?tab=planning" : "/demo")}>Explore farm planning →</button>
       </div>
     </section>
   </>

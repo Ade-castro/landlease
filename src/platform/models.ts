@@ -1,0 +1,5 @@
+export type PlatformRequest = { id: string; kind: string; user_id: string; listing_id: number | null; payload: Record<string, string | boolean | number>; status: string; admin_note: string; created_at: string }
+export type Contract = { id: string; negotiation_id: number; listing_id: number; owner_id: string; tenant_id: string; body: string; amount: number; currency: string; start_date: string; end_date: string; tenure: string; owner_name: string | null; tenant_name: string | null; owner_signed_at: string | null; tenant_signed_at: string | null; status: string; witnesses: { party: string; name: string; phone: string; id_last_four: string }[] }
+export type PaymentOrder = { id: string; contract_id: string; amount: number; commission: number; landowner_amount: number; currency: string; status: string; provider_reference: string | null; paid_at: string | null }
+export type SoilReport = { listing_id: number; laboratory: string; report_date: string; summary: string; ph: number | null }
+export function errorText(cause: unknown): string { return cause && typeof cause === 'object' && 'message' in cause ? String(cause.message) : 'The request could not be completed.' }

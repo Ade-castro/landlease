@@ -3,6 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useListings } from '../context/ListingsContext'
 import { useToast } from '../context/ToastContext'
 import { useFlow } from '../context/FlowContext'
+import { BoundaryMap, parseBoundary } from '../platform/BoundaryMap'
+import { ReviewsView } from '../platform/ReviewsView'
+import { SoilReportView } from '../platform/SoilReportView'
 
 export function ListingDetailPage() {
   const { id } = useParams()
@@ -48,7 +51,9 @@ export function ListingDetailPage() {
         </div>
         <div className="d-flex flex-wrap gap-2 mt-3">{listing.tags.map((tag) => <span key={tag} className="badge rounded-pill text-bg-light border fw-normal">{tag}</span>)}</div>
         {listing.description && <p className="text-secondary mt-4" style={{ maxWidth: 560, lineHeight: 1.75 }}>{listing.description}</p>}
-        <div className="mt-4"><h2 className="h5">Land information</h2><p className="text-secondary">Boundary: {listing.boundary || 'Map boundary not supplied'}<br />Land history: {listing.history || 'Not supplied'}<br />Soil report: {listing.soil || 'No report available'}</p></div>
+        {listing.boundary && parseBoundary(listing.boundary).length >= 3 && <BoundaryMap value={listing.boundary} readOnly />}
+        {listing.id > 0 && <><SoilReportView listingId={listing.id} /><ReviewsView listingId={listing.id} /></>}
+        <div className="mt-4"><h2 className="h5">Land information</h2><p className="text-secondary">Boundary: {parseBoundary(listing.boundary || '').length >= 3 ? 'Polygon recorded on the map above' : listing.boundary || 'Map boundary not supplied'}<br />Land history: {listing.history || 'Not supplied'}<br />Soil report: {listing.soil || 'No report available'}</p></div>
       </div>
       <aside className="col-lg-4">
         <div className="detail-card border p-4">
