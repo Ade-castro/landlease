@@ -3,12 +3,14 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useToast } from '../context/ToastContext'
 import { useFlow } from '../context/FlowContext'
+import { supabase } from '../lib/supabase'
 
 export function Header() {
   const location = useLocation()
   const navigate = useNavigate()
   const { show } = useToast()
-  const { profile, logout } = useFlow()
+  const { profile, user, logout } = useFlow()
+  const [isAdmin, setIsAdmin] = useState(false)
   const isHost = location.pathname.startsWith('/host')
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -23,6 +25,14 @@ export function Header() {
   }, [])
   useEffect(() => { setMenuOpen(false); setOpenPanel('none') }, [location.pathname])
   useEffect(() => {
+    let active = true
+    setIsAdmin(false)
+    if (user) void supabase.rpc('is_landlease_admin').then(({ data, error }) => {
+      if (active) setIsAdmin(!error && Boolean(data))
+    })
+    return () => { active = false }
+  }, [user?.id])
+  useEffect(() => {
     if (openPanel === 'none') return
     const onClick = (event: MouseEvent) => { if (panelRef.current && !panelRef.current.contains(event.target as Node)) setOpenPanel('none') }
     const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpenPanel('none') }
@@ -31,7 +41,7 @@ export function Header() {
     return () => { document.removeEventListener('mousedown', onClick); document.removeEventListener('keydown', onKey) }
   }, [openPanel])
 
-  const guestLinks = <><Link className={location.pathname === '/discover' || location.pathname === '/' ? 'active' : ''} to="/discover">Discover land</Link><Link to="/discover#how-it-works">How it works</Link><Link to="/discover#resources">Farm resources</Link></>
+  const guestLinks = <><Link className={location.pathname === '/discover' || location.pathname === '/' ? 'active' : ''} to="/discover">Discover land</Link><Link to="/negotiation-preview">Negotiation demo</Link><Link to="/discover#how-it-works">How it works</Link><Link to="/discover#resources">Farm resources</Link></>
   const hostLinks = <Link className="active" to="/host">Your listings</Link>
 
   return <header className={scrolled ? 'landlease-navbar scrolled bg-white sticky-top border-bottom py-3 position-relative' : 'landlease-navbar bg-white sticky-top border-bottom py-3 position-relative'}>
@@ -57,6 +67,8 @@ export function Header() {
           {openPanel === 'profile' && <div className="dropdown-panel dropdown-panel-end">
             <button className="dropdown-item" onClick={() => navigate('/saved')}><Heart size={16} /> Saved plots</button>
             {profile?.role === 'tenant' && <button className="dropdown-item" onClick={() => navigate('/my-visits')}>My farm visits</button>}
+            <button className="dropdown-item" onClick={() => navigate('/negotiation-preview')}>Negotiation demo</button>
+            {isAdmin && <button className="dropdown-item" onClick={() => navigate('/admin/review')}>Review listings (admin)</button>}
             <button className="dropdown-item" onClick={() => navigate('/account')}>{profile ? 'Edit profile' : 'Create profile'}</button>
             <button className="dropdown-item" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
             <button className="dropdown-item" onClick={() => navigate('/discover#resources')}><HelpCircle size={16} /> Help centre</button>
