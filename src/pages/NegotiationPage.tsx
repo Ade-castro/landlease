@@ -4,6 +4,7 @@ import { useFlow } from '../context/FlowContext'
 import { useListings } from '../context/ListingsContext'
 import { useVisits } from '../hooks/useVisits'
 import { supabase } from '../lib/supabase'
+import { NegotiationMessages } from '../components/NegotiationMessages'
 
 type Negotiation = {
   id: number; visit_id: number; owner_id: string; tenant_id: string
@@ -88,6 +89,7 @@ export function NegotiationPage() {
     </div>}
     {!owner && !record && <p>The landowner has not sent lease terms yet.</p>}
     {record?.status === 'accepted' && <p className="alert alert-success mt-3">Both parties can now prepare a contract and witnesses. Signing is not available yet.</p>}
+    {record && <NegotiationMessages negotiationId={record.id} />}
     {error && <div className="alert alert-danger mt-3" role="alert">{error}</div>}
   </section>
 }
