@@ -1,6 +1,7 @@
 import { MapPin, Pencil, Plus, Sprout, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { useReveal } from '../hooks/useReveal'
 import { useListings } from '../context/ListingsContext'
 import { useToast } from '../context/ToastContext'
@@ -57,6 +58,7 @@ export function HostDashboardPage() {
           <strong>{myListings.find(listing => listing.id === visit.listing_id)?.name}</strong>
           <span className="small">Request #{visit.id} · {visit.status} · {new Date(visit.requested_at).toLocaleString()}</span>
           {visit.proposed_at && <span className="small">Suggested time: {new Date(visit.proposed_at).toLocaleString()}</span>}
+          {visit.status === 'confirmed' && <Link className="btn btn-outline-primary btn-sm mt-2 align-self-start" to={`/negotiation/${visit.id}`}>Send or view lease terms</Link>}
           {visit.status === 'requested' && <div className="d-flex gap-2 flex-wrap mt-2">
             <button className="btn btn-primary btn-sm" disabled={responding === visit.id} onClick={() => void respond(visit.id, 'confirm')}>Confirm</button>
             <button className="btn btn-outline-secondary btn-sm" disabled={responding === visit.id} onClick={() => void respond(visit.id, 'decline')}>Decline</button>

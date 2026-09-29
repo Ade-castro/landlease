@@ -8,6 +8,7 @@ import { HostWizardPage } from './pages/HostWizardPage'
 import { SavedPage } from './pages/SavedPage'
 import { AccountPage } from './pages/AccountPage'
 import { FarmVisitPage } from './pages/FarmVisitPage'
+import { NegotiationPage } from './pages/NegotiationPage'
 
 function App() {
   const location = useLocation()
@@ -20,6 +21,7 @@ function App() {
           <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/listing/:id" element={<ListingDetailPage />} />
           <Route path="/listing/:id/visit" element={<FarmVisitPage />} />
+          <Route path="/negotiation/:visitId" element={<NegotiationPage />} />
           <Route path="/saved" element={<SavedPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/host" element={<HostDashboardPage />} />

@@ -60,8 +60,9 @@ export function FarmVisitPage() {
         <button className="btn btn-primary" disabled={busy} onClick={() => void respond('accept')}>Accept new time</button>
         <button className="btn btn-outline-secondary" disabled={busy} onClick={() => void respond('decline')}>Decline</button>
       </div>}
+      {visit.status === 'confirmed' && <Link className="btn btn-outline-primary mt-3" to={`/negotiation/${visit.id}`}>View lease terms</Link>}
     </div>}
-    <form className="card p-4 d-flex gap-3" onSubmit={submit}>
+    {visit?.status !== 'confirmed' && <form className="card p-4 d-flex gap-3" onSubmit={submit}>
       <h2 className="h5 mb-0">{visit ? 'Request another time' : 'Request a farm visit'}</h2>
       <p className="text-secondary mb-0">A visit is optional. The landowner can confirm, decline, or suggest another time.</p>
       <div><label htmlFor="visit-date" className="form-label">Preferred date and time</label>
@@ -69,6 +70,6 @@ export function FarmVisitPage() {
       {error && <div className="alert alert-danger mb-0" role="alert">{error}</div>}
       {message && <div className="alert alert-success mb-0" role="status">{message}</div>}
       <button type="submit" className="btn btn-primary rounded-pill" disabled={busy || !date}>{busy ? 'Sending…' : 'Send request'}</button>
-    </form>
+    </form>}
   </section>
 }
