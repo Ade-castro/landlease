@@ -56,6 +56,7 @@ export function Header() {
           <button className="profile-pill" aria-label="Account menu" aria-expanded={openPanel === 'profile'} onClick={() => setOpenPanel(openPanel === 'profile' ? 'none' : 'profile')}><Menu size={16} /><span className="avatar">{profile?.name.slice(0, 2).toUpperCase() || 'GO'}</span></button>
           {openPanel === 'profile' && <div className="dropdown-panel dropdown-panel-end">
             <button className="dropdown-item" onClick={() => navigate('/saved')}><Heart size={16} /> Saved plots</button>
+            {profile?.role === 'tenant' && <button className="dropdown-item" onClick={() => navigate('/my-visits')}>My farm visits</button>}
             <button className="dropdown-item" onClick={() => navigate('/account')}>{profile ? 'Edit profile' : 'Create profile'}</button>
             <button className="dropdown-item" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
             <button className="dropdown-item" onClick={() => navigate('/discover#resources')}><HelpCircle size={16} /> Help centre</button>
