@@ -10,14 +10,12 @@ import { SavedPage } from './pages/SavedPage'
 import { AccountPage } from './pages/AccountPage'
 import { FarmVisitPage } from './pages/FarmVisitPage'
 import { NegotiationPage } from './pages/NegotiationPage'
-import { NegotiationPreviewPage } from './pages/NegotiationPreviewPage'
 import { MyVisitsPage } from './pages/MyVisitsPage'
 import { AdminReviewPage } from './pages/AdminReviewPage'
 import { HelpCentrePage } from './pages/HelpCentrePage'
 
 const WorkspacePage = lazy(() => import('./platform/WorkspacePage').then(module => ({ default: module.WorkspacePage })))
 const ContractPage = lazy(() => import('./platform/ContractPage').then(module => ({ default: module.ContractPage })))
-const PresentationDemoPage = lazy(() => import('./platform/PresentationDemoPage').then(module => ({ default: module.PresentationDemoPage })))
 
 const DirectoryPage = lazy(() => import('./platform/DirectoryPage').then(module => ({ default: module.DirectoryPage })))
 
@@ -33,11 +31,9 @@ function App() {
           <Route path="/listing/:id" element={<ListingDetailPage />} />
           <Route path="/listing/:id/visit" element={<FarmVisitPage />} />
           <Route path="/negotiation/:visitId" element={<NegotiationPage />} />
-          <Route path="/negotiation-preview" element={<NegotiationPreviewPage />} />
           <Route path="/directory" element={<DirectoryPage />} />
           <Route path="/workspace" element={<WorkspacePage />} />
           <Route path="/contract/:id" element={<ContractPage />} />
-          <Route path="/demo" element={<PresentationDemoPage />} />
           <Route path="/help" element={<HelpCentrePage />} />
           <Route path="/saved" element={<SavedPage />} />
           <Route path="/my-visits" element={<MyVisitsPage />} />

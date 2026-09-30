@@ -100,7 +100,7 @@ export function DiscoverPage() {
         <p className="text-uppercase small fw-bold mb-2" style={{ letterSpacing: '.12em', color: '#d9ef87' }}>From lease to harvest</p>
         <h2 id="how-it-works" className="fw-bold display-6 mb-3">More than land. A head start.</h2>
         <p className="text-white-50 mb-4" style={{ maxWidth: 480 }}>Know what to plant, when to plant it, and where to find what you need. Your farm plan starts the moment you find your field.</p>
-        <button className="btn btn-light rounded-pill fw-semibold" onClick={() => navigate(user ? "/workspace?tab=planning" : "/demo")}>Explore farm planning →</button>
+        <button className="btn btn-light rounded-pill fw-semibold" onClick={() => navigate(user ? "/workspace?tab=planning" : "/account?next=" + encodeURIComponent("/workspace?tab=planning"))}>Explore farm planning →</button>
       </div>
     </section>
   </>

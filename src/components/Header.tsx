@@ -42,7 +42,7 @@ export function Header() {
     return () => { document.removeEventListener('mousedown', onClick); document.removeEventListener('keydown', onKey) }
   }, [openPanel])
 
-  const guestLinks = <><Link className={location.pathname === '/discover' || location.pathname === '/' ? 'active' : ''} to="/discover">Discover land</Link><Link to="/demo">Presentation demo</Link><Link to="/discover#how-it-works">How it works</Link><Link to="/directory">Inputs and equipment</Link></>
+  const guestLinks = <><Link className={location.pathname === '/discover' || location.pathname === '/' ? 'active' : ''} to="/discover">Discover land</Link><Link to="/discover#how-it-works">How it works</Link><Link to="/directory">Inputs and equipment</Link></>
   const hostLinks = <Link className="active" to="/host">Your listings</Link>
 
   return <header className={scrolled ? 'landlease-navbar scrolled bg-white sticky-top border-bottom py-3 position-relative' : 'landlease-navbar bg-white sticky-top border-bottom py-3 position-relative'}>
@@ -64,7 +64,6 @@ export function Header() {
           {openPanel === 'profile' && <div className="dropdown-panel dropdown-panel-end">
             <button className="dropdown-item" onClick={() => navigate('/saved')}><Heart size={16} /> Saved plots</button>
             {profile?.role === 'tenant' && <button className="dropdown-item" onClick={() => navigate('/my-visits')}>My farm visits</button>}
-            <button className="dropdown-item" onClick={() => navigate('/demo')}>Presentation demo</button>
             <button className="dropdown-item" onClick={() => navigate('/workspace')}>My workspace</button>
             {isAdmin && <button className="dropdown-item" onClick={() => navigate('/workspace?tab=admin')}>Admin operations</button>}
             <button className="dropdown-item" onClick={() => navigate('/account')}>{profile ? 'Edit profile' : 'Create profile'}</button>
