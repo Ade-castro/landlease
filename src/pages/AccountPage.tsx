@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useFlow, type Profile } from '../context/FlowContext'
 
 export function AccountPage() {
-  const { profile, loading, signUp, signIn, saveProfile } = useFlow()
+  const { profile, loading, signUp, signIn, saveProfile, changePassword } = useFlow()
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const [mode, setMode] = useState<'signup' | 'signin'>('signup')
@@ -15,6 +15,11 @@ export function AccountPage() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [signedInPending, setSignedInPending] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [passwordBusy, setPasswordBusy] = useState(false)
+  const [passwordMessage, setPasswordMessage] = useState('')
+  const [passwordError, setPasswordError] = useState('')
 
   useEffect(() => { if (profile) setDraft(profile) }, [profile])
 
@@ -65,6 +70,20 @@ export function AccountPage() {
     }
   }
 
+  const submitPasswordChange = async (event: FormEvent) => {
+    event.preventDefault()
+    setPasswordBusy(true); setPasswordError(''); setPasswordMessage('')
+    try {
+      await changePassword(currentPassword, newPassword)
+      setPasswordMessage('Password changed.')
+      setCurrentPassword(''); setNewPassword('')
+    } catch (e) {
+      setPasswordError(e instanceof Error ? e.message : 'Could not change password. Please try again.')
+    } finally {
+      setPasswordBusy(false)
+    }
+  }
+
   if (loading) return <section className="container-xxl py-5">Loading your account…</section>
 
   return <section className="container-xxl py-5" style={{ maxWidth: 640 }}>
@@ -102,5 +121,14 @@ export function AccountPage() {
       <button className="btn btn-primary rounded-pill" disabled={busy} type="submit">{busy ? 'Please wait…' : profile ? 'Save details' : mode === 'signup' ? 'Create account' : 'Sign in'}</button>
       {profile && <button className="btn btn-link" type="button" onClick={next}>Continue →</button>}
     </form>
+
+    {profile && <form onSubmit={submitPasswordChange} className="card border-0 shadow-sm p-4 gap-3 d-flex mt-4">
+      <h2 className="h5 mb-0">Change password</h2>
+      <div><label className="form-label">Current password</label><input required minLength={8} type="password" autoComplete="current-password" className="form-control" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} /></div>
+      <div><label className="form-label">New password</label><input required minLength={8} type="password" autoComplete="new-password" className="form-control" value={newPassword} onChange={e => setNewPassword(e.target.value)} /><div className="form-text">At least 8 characters.</div></div>
+      {passwordError && <div className="alert alert-danger mb-0" role="alert">{passwordError}</div>}
+      {passwordMessage && <div className="alert alert-success mb-0" role="status">{passwordMessage}</div>}
+      <button className="btn btn-outline-dark rounded-pill align-self-start" disabled={passwordBusy} type="submit">{passwordBusy ? 'Please wait…' : 'Change password'}</button>
+    </form>}
   </section>
 }

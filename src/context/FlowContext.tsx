@@ -31,6 +31,7 @@ type FlowValue = {
   signUp: (details: Profile, password: string) => Promise<void>
   signIn: (email: string, password: string) => Promise<void>
   saveProfile: (details: Profile) => Promise<void>
+  changePassword: (currentPassword: string, newPassword: string) => Promise<void>
   logout: () => Promise<void>
   cases: Case[]
   start: (listingId: number) => number
@@ -138,6 +139,14 @@ export function FlowProvider({ children }: { children: ReactNode }) {
     })
   }
 
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    if (!user?.email) throw new Error('Please sign in first.')
+    const { error: verifyError } = await supabase.auth.signInWithPassword({ email: user.email, password: currentPassword })
+    if (verifyError) throw new Error('Current password is incorrect.')
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    if (error) throw error
+  }
+
   const logout = async () => {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
@@ -161,7 +170,7 @@ export function FlowProvider({ children }: { children: ReactNode }) {
   }
 
   return <FlowContext.Provider value={{
-    profile, user, loading, signUp, signIn, saveProfile,
+    profile, user, loading, signUp, signIn, saveProfile, changePassword,
     logout, cases, start, change
   }}>
     {children}
