@@ -69,7 +69,7 @@ export function Header() {
             {isAdmin && <button className="dropdown-item" onClick={() => navigate('/workspace?tab=admin')}>Admin operations</button>}
             <button className="dropdown-item" onClick={() => navigate('/account')}>{profile ? 'Edit profile' : 'Create profile'}</button>
             <button className="dropdown-item" onClick={() => navigate(isHost ? '/discover' : '/host')}>{isHost ? 'Switch to renting' : 'List your land'}</button>
-            <button className="dropdown-item" onClick={() => navigate('/discover#resources')}><HelpCircle size={16} /> Help centre</button>
+            <button className="dropdown-item" onClick={() => navigate('/help')}><HelpCircle size={16} /> Help centre</button>
             <hr className="my-2" />
             <button className="dropdown-item" onClick={async () => { setOpenPanel('none'); if (profile) { try { await logout(); navigate('/discover'); show('Signed out.') } catch { show('Could not sign out. Please try again.') } } else navigate('/account') }}><LogOut size={16} /> {profile ? 'Sign out' : 'Get started'}</button>
           </div>}

@@ -13,6 +13,7 @@ import { NegotiationPage } from './pages/NegotiationPage'
 import { NegotiationPreviewPage } from './pages/NegotiationPreviewPage'
 import { MyVisitsPage } from './pages/MyVisitsPage'
 import { AdminReviewPage } from './pages/AdminReviewPage'
+import { HelpCentrePage } from './pages/HelpCentrePage'
 
 const WorkspacePage = lazy(() => import('./platform/WorkspacePage').then(module => ({ default: module.WorkspacePage })))
 const ContractPage = lazy(() => import('./platform/ContractPage').then(module => ({ default: module.ContractPage })))
@@ -37,6 +38,7 @@ function App() {
           <Route path="/workspace" element={<WorkspacePage />} />
           <Route path="/contract/:id" element={<ContractPage />} />
           <Route path="/demo" element={<PresentationDemoPage />} />
+          <Route path="/help" element={<HelpCentrePage />} />
           <Route path="/saved" element={<SavedPage />} />
           <Route path="/my-visits" element={<MyVisitsPage />} />
           <Route path="/admin/review" element={<AdminReviewPage />} />

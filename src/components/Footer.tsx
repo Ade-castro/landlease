@@ -7,7 +7,7 @@ export function Footer() {
       <span>Good ground. Good growth.</span>
       <div className="d-flex gap-4">
         <Link className="text-secondary" to="/discover#how-it-works">About</Link>
-        <Link className="text-secondary" to="/discover#resources">Help centre</Link>
+        <Link className="text-secondary" to="/help">Help centre</Link>
         <Link className="text-secondary" to="/host/new">List your land</Link>
       </div>
     </div>
