@@ -64,6 +64,7 @@ export function Header() {
           {openPanel === 'profile' && <div className="dropdown-panel dropdown-panel-end">
             <button className="dropdown-item" onClick={() => navigate('/saved')}><Heart size={16} /> Saved plots</button>
             {profile?.role === 'tenant' && <button className="dropdown-item" onClick={() => navigate('/my-visits')}>My farm visits</button>}
+            {profile && <button className="dropdown-item" onClick={() => navigate(profile.role === 'tenant' ? '/my-visits' : '/host')}>Negotiation page</button>}
             <button className="dropdown-item" onClick={() => navigate('/workspace')}>My workspace</button>
             {isAdmin && <button className="dropdown-item" onClick={() => navigate('/workspace?tab=admin')}>Admin operations</button>}
             <button className="dropdown-item" onClick={() => navigate('/account')}>{profile ? 'Edit profile' : 'Create profile'}</button>
